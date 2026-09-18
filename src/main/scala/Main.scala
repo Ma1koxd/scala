@@ -1,6 +1,32 @@
 import scala.io.StdIn.readLine
 
 object Main {
+  def readPriority(): Priority = {
+    var valid = false
+    var result = Priority.LOW
+
+    while(!valid){
+      val choice = readInt()
+      choice match {
+        case 1 =>
+          result = Priority.LOW
+          valid = true
+        case 2 =>
+          result = Priority.NORMAL
+          valid = true
+        case 3 =>
+          result = Priority.HIGH
+          valid = true
+        case 4 =>
+          result = Priority.CRITICAL
+          valid = true
+        case _ =>
+          println("Ошибка: введите число от 1 до 4.")
+      }
+    }
+    result
+  }
+
   def readInt(): Int = {
     var result = 0
     var valid = false
@@ -39,7 +65,10 @@ object Main {
         println("Сколько часов уже выполнено:")
         val completedHours = readInt()
 
-        val task = Task(id, name, description, totalHours, completedHours)
+        println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
+        val priority = readPriority()
+
+        val task = Task(id, name, description, totalHours, completedHours, priority)
 
         if (task.totalHours <= 0) {
           println("Ошибка: трудоёмкость должна быть больше нуля.")
@@ -55,7 +84,8 @@ object Main {
           println("Описание дела: " + task.description)
           println("Трудоёмкость: " + task.totalHours + " часов")
           println("Выполнено: " + task.completedHours + " часов")
-          println("Осталось: " + (task.totalHours - task.completedHours) + " часов\n")
+          println("Осталось: " + (task.totalHours - task.completedHours) + " часов")
+          println("Приоритет выполнения: " + task.priority + "\n")
           tasks = tasks :+ task
         }
         i += 1
@@ -64,14 +94,15 @@ object Main {
     else{
       println("Ошибка: количество дел должно быть больше нуля")
     }
-    println("Список сохранённых дел: ")
+    println("\nСписок сохранённых дел: ")
     for (task <- tasks){
       println("ID: " + task.id)
       println("Название: " + task.name)
       println("Описание дела: " + task.description)
       println("Трудоёмкость: " + task.totalHours + " часов")
       println("Выполнено: " + task.completedHours + " часов")
-      println("Осталось: " + (task.totalHours-task.completedHours) + " часов\n")
+      println("Осталось: " + (task.totalHours-task.completedHours) + " часов")
+      println("Приоритет выполнения: " + task.priority + "\n")
     }
   }
 }
