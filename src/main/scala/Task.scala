@@ -9,5 +9,6 @@ case class Task(id: Int,
                 deadline: LocalDate,
                 priority: Priority,
                 canSplit: Boolean,
+                minBlockMinutes: Int,
                 status: TaskStatus,
                )

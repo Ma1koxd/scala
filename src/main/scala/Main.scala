@@ -112,12 +112,20 @@ object Main {
         println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
         val priority = readPriority()
 
-        println("Можно ли разделять дело на части?\n1)Да\n2)Нет")
+        println("Можно ли разделять дело на блоки?\n1)Да\n2)Нет")
         val canSplit = readBoolean()
+
+        val minBlockMinutes = if (canSplit){
+          println("Введите минимальную продолжительность блока в минутах: ")
+          readInt()
+        }
+        else{
+          (totalHours-completedHours)*60
+        }
 
         val status = TaskStatus.PLANNED
 
-        val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, status)
+        val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, minBlockMinutes, status)
 
         if (task.totalHours <= 0) {
           println("Ошибка: трудоёмкость должна быть больше нуля.")
@@ -153,7 +161,7 @@ object Main {
       println("Срок до: " + task.deadline)
       println("Приоритет выполнения: " + task.priority)
       println("Можно делить: " + task.canSplit)
-      println("Минимальный блок: " + "\n")
+      println("Минимальный блок: " + task.minBlockMinutes + " минут\n")
     }
   }
 }
