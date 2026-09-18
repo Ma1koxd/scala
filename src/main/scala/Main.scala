@@ -1,6 +1,24 @@
 import scala.io.StdIn.readLine
+import java.time.format.DateTimeParseException
+import java.time.LocalDate
 
 object Main {
+  def readDate(): LocalDate = {
+    var valid = false
+    var result = LocalDate.of(2000,1,1)
+    while(!valid){
+      try{
+        val date = LocalDate.parse(readLine())
+        result = date
+        valid = true
+      }catch{
+        case _: DateTimeParseException =>
+          println("Ошибка: введите дату в формате ГГГГ-ММ-ДД")
+      }
+    }
+    result
+  }
+
   def readPriority(): Priority = {
     var valid = false
     var result = Priority.LOW
@@ -65,10 +83,18 @@ object Main {
         println("Сколько часов уже выполнено:")
         val completedHours = readInt()
 
+        println("Введите дату начала: ")
+        val startDate = readDate()
+
+        println("Введите дату срока: ")
+        val deadline = readDate()
+
         println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
         val priority = readPriority()
 
-        val task = Task(id, name, description, totalHours, completedHours, priority)
+        val status = TaskStatus.PLANNED
+
+        val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, status)
 
         if (task.totalHours <= 0) {
           println("Ошибка: трудоёмкость должна быть больше нуля.")
@@ -79,14 +105,12 @@ object Main {
         else if (task.completedHours < 0) {
           println("Ошибка: выполненное время не может быть отрицательным")
         }
+        else if (deadline.isBefore(startDate)) {
+          println("Ошибка: дедлайн не может быть раньше даты начала")
+        }
         else {
-          println("Ваше дело: " + task.name)
-          println("Описание дела: " + task.description)
-          println("Трудоёмкость: " + task.totalHours + " часов")
-          println("Выполнено: " + task.completedHours + " часов")
-          println("Осталось: " + (task.totalHours - task.completedHours) + " часов")
-          println("Приоритет выполнения: " + task.priority + "\n")
           tasks = tasks :+ task
+          println("Дело успешно добавлено.")
         }
         i += 1
       }
@@ -102,6 +126,8 @@ object Main {
       println("Трудоёмкость: " + task.totalHours + " часов")
       println("Выполнено: " + task.completedHours + " часов")
       println("Осталось: " + (task.totalHours-task.completedHours) + " часов")
+      println("Дата начала: " + task.startDate)
+      println("Срок до: " + task.deadline)
       println("Приоритет выполнения: " + task.priority + "\n")
     }
   }

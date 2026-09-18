@@ -1,6 +1,12 @@
-case class Task(id: Int, 
-                name: String, 
-                description: String, 
-                totalHours: Int, 
+import java.time.LocalDate
+
+case class Task(id: Int,
+                name: String,
+                description: String,
+                totalHours: Int,
                 completedHours: Int,
-                priority: Priority)
+                startDate: LocalDate,
+                deadline: LocalDate,
+                priority: Priority,
+                status: TaskStatus
+               )
