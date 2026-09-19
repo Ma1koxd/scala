@@ -2,18 +2,6 @@ import scala.io.StdIn.readLine
 import InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
 
 object Main {
-  def getInitialStatus(totalHours: Double, completedHours: Double): TaskStatus = {
-    if (completedHours == 0) {
-      TaskStatus.PLANNED
-    }
-    else if (completedHours == totalHours) {
-      TaskStatus.COMPLETED
-    }
-    else {
-      TaskStatus.IN_PROGRESS
-    }
-  }
-
   def validateTask(task: Task): Boolean = {
     if (task.totalHours <= 0) {
       println("Ошибка: трудоёмкость должна быть больше нуля.")
@@ -77,7 +65,7 @@ object Main {
           ((totalHours-completedHours)*60).toInt
         }
 
-        val status = getInitialStatus(totalHours, completedHours)
+        val status = Task.getInitialStatus(totalHours, completedHours)
 
         val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, minBlockMinutes, status)
 

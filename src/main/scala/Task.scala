@@ -12,3 +12,17 @@ case class Task(id: Int,
                 minBlockMinutes: Int,
                 status: TaskStatus,
                )
+
+object Task {
+  def getInitialStatus(totalHours: Double, completedHours: Double): TaskStatus = {
+    if (completedHours == 0) {
+      TaskStatus.PLANNED
+    }
+    else if (completedHours == totalHours) {
+      TaskStatus.COMPLETED
+    }
+    else {
+      TaskStatus.IN_PROGRESS
+    }
+  }
+}
