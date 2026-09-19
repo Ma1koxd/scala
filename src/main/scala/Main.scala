@@ -19,9 +19,61 @@ object Main {
       println("Ошибка: дедлайн не может быть раньше даты начала")
       false
     }
+    else if (task.canSplit && task.minBlockMinutes <= 0) {
+      println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
+      false
+    }
     else {
       true
     }
+  }
+
+  def createTask(id: Int): Task = {
+    println("Введите название дела:")
+    val name = readLine()
+
+    println("Введите описание дела:")
+    val description = readLine()
+
+    println("Введите трудоёмкость в часах:")
+    val totalHours = readDouble()
+
+    println("Сколько часов уже выполнено:")
+    val completedHours = readDouble()
+
+    println("Введите дату начала (ГГГГ-ММ-ДД): ")
+    val startDate = readDate()
+
+    println("Введите дату срока (ГГГГ-ММ-ДД): ")
+    val deadline = readDate()
+
+    println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
+    val priority = readPriority()
+
+    println("Можно ли разделять дело на блоки?\n1)Да\n2)Нет")
+    val canSplit = readBoolean()
+
+    val minBlockMinutes = if (canSplit) {
+      println("Введите минимальную продолжительность блока в минутах: ")
+      readInt()
+    }
+    else {
+      ((totalHours - completedHours) * 60).toInt
+    }
+
+    val status = Task.getInitialStatus(totalHours, completedHours)
+
+    Task(id,
+      name,
+      description,
+      totalHours,
+      completedHours,
+      startDate,
+      deadline,
+      priority,
+      canSplit,
+      minBlockMinutes,
+      status)
   }
 
   def main(args: Array[String]): Unit = {
@@ -33,41 +85,8 @@ object Main {
       var i = 0
       while (i < taskCount) {
         val id = i+1
-        println("Введите название дела:")
-        val name = readLine()
 
-        println("Введите описание дела:")
-        val description = readLine()
-
-        println("Введите трудоёмкость в часах:")
-        val totalHours = readDouble()
-
-        println("Сколько часов уже выполнено:")
-        val completedHours = readDouble()
-
-        println("Введите дату начала (ГГГГ-ММ-ДД): ")
-        val startDate = readDate()
-
-        println("Введите дату срока (ГГГГ-ММ-ДД): ")
-        val deadline = readDate()
-
-        println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
-        val priority = readPriority()
-
-        println("Можно ли разделять дело на блоки?\n1)Да\n2)Нет")
-        val canSplit = readBoolean()
-
-        val minBlockMinutes = if (canSplit){
-          println("Введите минимальную продолжительность блока в минутах: ")
-          readInt()
-        }
-        else{
-          ((totalHours-completedHours)*60).toInt
-        }
-
-        val status = Task.getInitialStatus(totalHours, completedHours)
-
-        val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, minBlockMinutes, status)
+        val task = createTask(id)
 
         if (validateTask(task)){
           tasks = tasks :+ task
@@ -79,7 +98,7 @@ object Main {
     else{
       println("Ошибка: количество дел должно быть больше нуля")
     }
-    println("\nСписок сохранённых дел: ")
+    println("\nСписок сохранённых дел: \n")
     for (task <- tasks){
       println("ID: " + task.id)
       println("Название: " + task.name)
