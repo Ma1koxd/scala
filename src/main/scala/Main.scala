@@ -82,6 +82,23 @@ object Main {
     result
   }
 
+  def readDouble(): Double = {
+    var result = 0.0
+    var valid = false
+
+    while (!valid) {
+      try {
+        val task = readLine().toDouble
+        result = task
+        valid = true
+      } catch {
+        case _: NumberFormatException =>
+          println("Ошибка: введите корректное число. ")
+      }
+    }
+    result
+  }
+
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
 
@@ -98,15 +115,15 @@ object Main {
         val description = readLine()
 
         println("Введите трудоёмкость в часах:")
-        val totalHours = readInt()
+        val totalHours = readDouble()
 
         println("Сколько часов уже выполнено:")
-        val completedHours = readInt()
+        val completedHours = readDouble()
 
-        println("Введите дату начала: ")
+        println("Введите дату начала (ГГГГ-ММ-ДД): ")
         val startDate = readDate()
 
-        println("Введите дату срока: ")
+        println("Введите дату срока (ГГГГ-ММ-ДД): ")
         val deadline = readDate()
 
         println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
@@ -120,7 +137,7 @@ object Main {
           readInt()
         }
         else{
-          (totalHours-completedHours)*60
+          ((totalHours-completedHours)*60).toInt
         }
 
         val status = TaskStatus.PLANNED
