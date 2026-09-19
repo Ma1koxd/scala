@@ -14,6 +14,28 @@ object Main {
     }
   }
 
+  def validateTask(task: Task): Boolean = {
+    if (task.totalHours <= 0) {
+      println("Ошибка: трудоёмкость должна быть больше нуля.")
+      false
+    }
+    else if (task.completedHours > task.totalHours) {
+      println("Ошибка: выполненное время не может превышать трудоёмкость.")
+      false
+    }
+    else if (task.completedHours < 0) {
+      println("Ошибка: выполненное время не может быть отрицательным")
+      false
+    }
+    else if (task.deadline.isBefore(task.startDate)) {
+      println("Ошибка: дедлайн не может быть раньше даты начала")
+      false
+    }
+    else {
+      true
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
 
@@ -59,19 +81,7 @@ object Main {
 
         val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, minBlockMinutes, status)
 
-        if (task.totalHours <= 0) {
-          println("Ошибка: трудоёмкость должна быть больше нуля.")
-        }
-        else if (task.completedHours > task.totalHours) {
-          println("Ошибка: выполненное время не может превышать трудоёмкость.")
-        }
-        else if (task.completedHours < 0) {
-          println("Ошибка: выполненное время не может быть отрицательным")
-        }
-        else if (deadline.isBefore(startDate)) {
-          println("Ошибка: дедлайн не может быть раньше даты начала")
-        }
-        else {
+        if (validateTask(task)){
           tasks = tasks :+ task
           println("Дело успешно добавлено.")
         }
