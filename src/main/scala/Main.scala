@@ -1,7 +1,19 @@
 import scala.io.StdIn.readLine
-import InputUtils.{readInt, readDouble, readDate, readPriority, readBoolean}
+import InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
 
 object Main {
+  def getInitialStatus(totalHours: Double, completedHours: Double): TaskStatus = {
+    if (completedHours == 0) {
+      TaskStatus.PLANNED
+    }
+    else if (completedHours == totalHours) {
+      TaskStatus.COMPLETED
+    }
+    else {
+      TaskStatus.IN_PROGRESS
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
 
@@ -43,7 +55,7 @@ object Main {
           ((totalHours-completedHours)*60).toInt
         }
 
-        val status = TaskStatus.PLANNED
+        val status = getInitialStatus(totalHours, completedHours)
 
         val task = Task(id, name, description, totalHours, completedHours, startDate, deadline, priority, canSplit, minBlockMinutes, status)
 
@@ -81,7 +93,10 @@ object Main {
       println("Срок до: " + task.deadline)
       println("Приоритет выполнения: " + task.priority)
       println("Можно делить: " + task.canSplit)
-      println("Минимальный блок: " + task.minBlockMinutes + " минут\n")
+      if (task.canSplit){
+        println("Минимальный блок: " + task.minBlockMinutes + " минут")
+      }
+      println("Состояние: " + task.status + "\n")
     }
   }
 }
