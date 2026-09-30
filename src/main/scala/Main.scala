@@ -96,6 +96,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
     var running = true
+    var nextId = 1
 
     while (running){
       println("Меню:")
@@ -110,12 +111,12 @@ object Main {
       choice match{
         case 1 =>
           println("Добавление дела")
-          val id = tasks.length + 1
-          val task = createTask(id)
+          val task = createTask(nextId)
 
           if (validateTask(task)) {
             tasks = tasks :+ task
             println("Дело успешно добавлено.")
+            nextId += 1
           }
         case 2 =>
           if (tasks.isEmpty){
@@ -127,7 +128,23 @@ object Main {
             }
           }
         case 3 => println("Изменение дела")
-        case 4 => println("Удаление дела")
+        case 4 =>
+          if (tasks.isEmpty){
+            println("Список дел пуст.\n")
+          }else {
+            println("Введите ID дела для удаления: ")
+            val id = readInt()
+
+            val oldSize = tasks.length
+
+            tasks = tasks.filter(task => task.id != id)
+
+            if (tasks.length < oldSize){
+              println("Дело успешно удалено.")
+            } else {
+              println("Дело с таким ID не найдено.")
+            }
+          }
         case 0 => running = false
         case _ => println("Ошибка: выберите пункт от 0 до 4.")
       }
