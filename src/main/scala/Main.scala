@@ -2,6 +2,23 @@ import scala.io.StdIn.readLine
 import InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
 
 object Main {
+  def printTask(task: Task): Unit = {
+    println("ID: " + task.id)
+    println("Название: " + task.name)
+    println("Описание дела: " + task.description)
+    println("Трудоёмкость: " + task.totalHours + " часов")
+    println("Выполнено: " + task.completedHours + " часов")
+    println("Осталось: " + (task.totalHours - task.completedHours) + " часов")
+    println("Дата начала: " + task.startDate)
+    println("Срок до: " + task.deadline)
+    println("Приоритет выполнения: " + task.priority)
+    println("Можно делить: " + task.canSplit)
+    if (task.canSplit) {
+      println("Минимальный блок: " + task.minBlockMinutes + " минут")
+    }
+    println("Состояние: " + task.status + "\n")
+  }
+
   def validateTask(task: Task): Boolean = {
     if (task.totalHours <= 0) {
       println("Ошибка: трудоёмкость должна быть больше нуля.")
@@ -78,42 +95,42 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
+    var running = true
 
-    println("Введите количество дел:")
-    val taskCount = readInt()
-    if (taskCount > 0){
-      var i = 0
-      while (i < taskCount) {
-        val id = i+1
+    while (running){
+      println("Меню:")
+      println("1. Добавить дело")
+      println("2. Показать дела")
+      println("3. Изменить дело")
+      println("4. Удалить дело")
+      println("0. Выход")
 
-        val task = createTask(id)
+      val choice = readInt()
 
-        if (validateTask(task)){
-          tasks = tasks :+ task
-          println("Дело успешно добавлено.")
-        }
-        i += 1
+      choice match{
+        case 1 =>
+          println("Добавление дела")
+          val id = tasks.length + 1
+          val task = createTask(id)
+
+          if (validateTask(task)) {
+            tasks = tasks :+ task
+            println("Дело успешно добавлено.")
+          }
+        case 2 =>
+          if (tasks.isEmpty){
+            println("Список дел пуст.\n")
+          }else{
+            println("\nСписок сохранённых дел: \n")
+            for (task <- tasks) {
+              printTask(task)
+            }
+          }
+        case 3 => println("Изменение дела")
+        case 4 => println("Удаление дела")
+        case 0 => running = false
+        case _ => println("Ошибка: выберите пункт от 0 до 4.")
       }
-    }
-    else{
-      println("Ошибка: количество дел должно быть больше нуля")
-    }
-    println("\nСписок сохранённых дел: \n")
-    for (task <- tasks){
-      println("ID: " + task.id)
-      println("Название: " + task.name)
-      println("Описание дела: " + task.description)
-      println("Трудоёмкость: " + task.totalHours + " часов")
-      println("Выполнено: " + task.completedHours + " часов")
-      println("Осталось: " + (task.totalHours-task.completedHours) + " часов")
-      println("Дата начала: " + task.startDate)
-      println("Срок до: " + task.deadline)
-      println("Приоритет выполнения: " + task.priority)
-      println("Можно делить: " + task.canSplit)
-      if (task.canSplit){
-        println("Минимальный блок: " + task.minBlockMinutes + " минут")
-      }
-      println("Состояние: " + task.status + "\n")
     }
   }
 }
