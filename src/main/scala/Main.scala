@@ -13,6 +13,19 @@ object Main {
     )
   }
 
+  def addTask(tasks: List[Task], nextId: Int): (List[Task], Int) = {
+    println("Добавление дела")
+    val task = createTask(nextId)
+
+    if (validateTask(task)) {
+      val updatedTasks = tasks :+ task
+      println("Дело успешно добавлено.")
+      (updatedTasks, nextId + 1)
+    } else {
+      (tasks, nextId)
+    }
+  }
+
   def printTask(task: Task): Unit = {
     println("ID: " + task.id)
     println("Название: " + task.name)
@@ -97,6 +110,17 @@ object Main {
       canSplit,
       minBlockMinutes,
       status)
+  }
+
+  def printTasks(tasks: List[Task]): Unit = {
+    if (tasks.isEmpty) {
+      println("Список дел пуст.\n")
+    } else {
+      println("\nСписок сохранённых дел: \n")
+      for (task <- tasks) {
+        printTask(task)
+      }
+    }
   }
 
   def editTask(tasks: List[Task]): List[Task] = {
@@ -341,23 +365,12 @@ object Main {
 
       choice match{
         case 1 =>
-          println("Добавление дела")
-          val task = createTask(nextId)
+          val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
 
-          if (validateTask(task)) {
-            tasks = tasks :+ task
-            println("Дело успешно добавлено.")
-            nextId += 1
-          }
+          tasks = updatedTasks
+          nextId = updatedNextId
         case 2 =>
-          if (tasks.isEmpty){
-            println("Список дел пуст.\n")
-          }else{
-            println("\nСписок сохранённых дел: \n")
-            for (task <- tasks) {
-              printTask(task)
-            }
-          }
+          printTasks(tasks)
         case 3 =>
           tasks = editTask(tasks)
         case 4 =>
