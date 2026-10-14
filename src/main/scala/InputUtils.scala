@@ -1,4 +1,4 @@
-import java.time.LocalDate
+import java.time.{LocalDate, LocalTime}
 import java.time.format.DateTimeParseException
 import scala.io.StdIn.readLine
 
@@ -94,6 +94,22 @@ object InputUtils {
           valid = true
         case _ =>
           println("Ошибка: введите число от 1 до 2")
+      }
+    }
+    result
+  }
+
+  def readTime(): LocalTime = {
+    var valid = false
+    var result = LocalTime.of(0, 0)
+    while (!valid) {
+      try {
+        val time = LocalTime.parse(readLine())
+        result = time
+        valid = true
+      } catch {
+        case _: DateTimeParseException =>
+          println("Ошибка: введите время в формате ЧЧ:ММ")
       }
     }
     result

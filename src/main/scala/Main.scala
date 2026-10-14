@@ -1,3 +1,5 @@
+import FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
+import FreeTimePrinter.printFreeTimeSlots
 import InputUtils.readInt
 import TaskManager.{addTask, deleteTask, editTask}
 import TaskPrinter.printTasks
@@ -5,6 +7,7 @@ import TaskPrinter.printTasks
 object Main {
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
+    var freeTimeSlots = List.empty[FreeTimeSlot]
     var running = true
     var nextId = 1
 
@@ -14,6 +17,9 @@ object Main {
       println("2. Показать дела")
       println("3. Изменить дело")
       println("4. Удалить дело")
+      println("5. Добавить свободное время")
+      println("6. Показать свободное время")
+      println("7. Удалить свободное время")
       println("0. Выход")
 
       val choice = readInt()
@@ -30,8 +36,14 @@ object Main {
           tasks = editTask(tasks)
         case 4 =>
           tasks = deleteTask(tasks)
+        case 5 =>
+          freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+        case 6 =>
+          printFreeTimeSlots(freeTimeSlots)
+        case 7 =>
+          freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
         case 0 => running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 4.")
+        case _ => println("Ошибка: выберите пункт от 0 до 7.")
       }
     }
   }
