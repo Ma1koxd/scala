@@ -10,7 +10,11 @@ case class Task(id: Int,
                 canSplit: Boolean,
                 minBlockMinutes: Int,
                 status: TaskStatus,
-               )
+               ){
+  def remainingMinutes: Long = {
+    math.round((totalHours-completedHours)*60)
+  }
+}
 
 object Task {
   def getInitialStatus(totalHours: Double, completedHours: Double): TaskStatus = {
