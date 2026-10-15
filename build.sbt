@@ -9,3 +9,4 @@ lazy val root = rootProject
       //"org.scalameta" %% "munit" % "1.2.3" % Test
     )
   )
+#
