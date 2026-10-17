@@ -35,18 +35,23 @@ object Main {
 
           tasks = updatedTasks
           nextId = updatedNextId
+          schedule = List.empty[ScheduledBlock]
         case 2 =>
           printTasks(tasks)
         case 3 =>
           tasks = editTask(tasks)
+          schedule = List.empty[ScheduledBlock]
         case 4 =>
           tasks = deleteTask(tasks)
+          schedule = List.empty[ScheduledBlock]
         case 5 =>
           freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+          schedule = List.empty[ScheduledBlock]
         case 6 =>
           printFreeTimeSlots(freeTimeSlots)
         case 7 =>
           freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
+          schedule = List.empty[ScheduledBlock]
         case 8 =>
           println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
           val currentDate = readDate()
