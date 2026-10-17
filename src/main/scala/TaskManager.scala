@@ -182,7 +182,17 @@ object TaskManager {
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
                 val newStartDate = readDate()
 
-                val updatedTask = currentTask.copy(startDate = newStartDate)
+                val newStatus =
+                  if (currentTask.status == TaskStatus.CANCELLED) {
+                    TaskStatus.CANCELLED
+                  } else {
+                    Task.getInitialStatus(currentTask.totalHours, currentTask.completedHours)
+                  }
+
+                val updatedTask = currentTask.copy(
+                  startDate = newStartDate,
+                  status = newStatus
+                )
 
                 if (validateTask(updatedTask)) {
                   updatedTasks = replaceTask(updatedTasks, updatedTask)
@@ -196,7 +206,17 @@ object TaskManager {
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
                 val newDeadline = readDate()
 
-                val updatedTask = currentTask.copy(deadline = newDeadline)
+                val newStatus =
+                  if (currentTask.status == TaskStatus.CANCELLED) {
+                    TaskStatus.CANCELLED
+                  } else {
+                    Task.getInitialStatus(currentTask.totalHours, currentTask.completedHours)
+                  }
+
+                val updatedTask = currentTask.copy(
+                  deadline = newDeadline,
+                  status = newStatus
+                )
 
                 if (validateTask(updatedTask)) {
                   updatedTasks = replaceTask(updatedTasks, updatedTask)
