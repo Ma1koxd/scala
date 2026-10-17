@@ -118,7 +118,12 @@ object TaskManager {
                 println("Введите новую трудоёмкость в часах: ")
                 val newTotalHours = readDouble()
 
-                val newStatus = Task.getInitialStatus(newTotalHours, currentTask.completedHours)
+                val newStatus =
+                  if (currentTask.status == TaskStatus.CANCELLED) {
+                    TaskStatus.CANCELLED
+                  } else {
+                    Task.getInitialStatus(newTotalHours, currentTask.completedHours)
+                  }
 
                 val newMinBlockMinutes =
                   if (currentTask.canSplit) {
@@ -145,7 +150,12 @@ object TaskManager {
                 println("Введите количество выполненных часов: ")
                 val newCompletedHours = readDouble()
 
-                val newStatus = Task.getInitialStatus(currentTask.totalHours, newCompletedHours)
+                val newStatus =
+                  if (currentTask.status == TaskStatus.CANCELLED) {
+                    TaskStatus.CANCELLED
+                  } else {
+                    Task.getInitialStatus(currentTask.totalHours, newCompletedHours)
+                  }
 
                 val newMinBlockMinutes =
                   if (currentTask.canSplit) {
@@ -296,5 +306,41 @@ object TaskManager {
     }
 
     updatedTasks
+  }
+
+  def cancelTask(tasks: List[Task]): List[Task] = {
+    if (tasks.isEmpty) {
+      println("Список дел пуст.")
+      tasks
+    } else {
+      println("Введите ID дела для отмены:")
+      val id = readInt()
+
+      tasks.find(task => task.id == id) match {
+        case Some(task) =>
+          if (task.status == TaskStatus.COMPLETED) {
+            println("Нельзя отменить уже завершенное дело.")
+            tasks
+          } else if (task.status == TaskStatus.CANCELLED) {
+            println("Дело уже отменено.")
+            tasks
+          } else {
+            val updatedTasks = tasks.map(currentTask =>
+              if (currentTask.id == id) {
+                currentTask.copy(status = TaskStatus.CANCELLED)
+              } else {
+                currentTask
+              }
+            )
+
+            println("Дело отменено.")
+            updatedTasks
+          }
+
+        case None =>
+          println("Дело с таким ID не найдено.")
+          tasks
+      }
+    }
   }
 }

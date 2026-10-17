@@ -3,8 +3,8 @@ import FreeTimePrinter.printFreeTimeSlots
 import InputUtils.{readDate, readInt}
 import ScheduledBlockPrinter.printSchedule
 import Scheduler.scheduleAllTasks
-import TaskManager.{addTask, deleteTask, editTask}
-import TaskPrinter.printTasks
+import TaskManager.{addTask, cancelTask, deleteTask, editTask}
+import TaskPrinter.{printTask, printTasks}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -21,11 +21,12 @@ object Main {
       println("2. Показать дела")
       println("3. Изменить дело")
       println("4. Удалить дело")
-      println("5. Добавить свободное время")
-      println("6. Показать свободное время")
-      println("7. Удалить свободное время")
-      println("8. Составить расписание")
-      println("9. Показать расписание")
+      println("5. Отменить дело")
+      println("6. Добавить свободное время")
+      println("7. Показать свободное время")
+      println("8. Удалить свободное время")
+      println("9. Составить расписание")
+      println("10. Показать расписание")
       println("0. Выход")
 
       val choice = readInt()
@@ -49,16 +50,20 @@ object Main {
           schedule = List.empty[ScheduledBlock]
           remainingFreeTimeSlots = freeTimeSlots
         case 5 =>
-          freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+          tasks = cancelTask(tasks)
           schedule = List.empty[ScheduledBlock]
           remainingFreeTimeSlots = freeTimeSlots
         case 6 =>
-          printFreeTimeSlots(remainingFreeTimeSlots)
+          freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+          schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 7 =>
+          printFreeTimeSlots(remainingFreeTimeSlots)
+        case 8 =>
           freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
           schedule = List.empty[ScheduledBlock]
           remainingFreeTimeSlots = freeTimeSlots
-        case 8 =>
+        case 9 =>
           println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
           val currentDate = readDate()
 
@@ -68,8 +73,10 @@ object Main {
           printSchedule(schedule)
 
           if (unplacedTasks.nonEmpty) {
-            println("Не удалось разместить следующие задачи:")
-            printTasks(unplacedTasks)
+            println("\nНе удалось разместить следующие задачи:\n")
+            for (task <- unplacedTasks) {
+              printTask(task)
+            }
           }
 
           val overdueTasks = updatedTasks.filter(task =>
@@ -77,8 +84,11 @@ object Main {
           )
 
           if (overdueTasks.nonEmpty) {
-            println("Просроченные задачи:")
-            printTasks(overdueTasks)
+            println("\nПросроченные задачи:\n")
+
+            for (task <- overdueTasks) {
+              printTask(task)
+            }
           }
 
           println("Оставшееся свободное время после составления расписания:")
@@ -90,10 +100,10 @@ object Main {
           }
 
           tasks = updatedTasks
-        case 9 =>
+        case 10 =>
           printSchedule(schedule)
         case 0 => running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 9.")
+        case _ => println("Ошибка: выберите пункт от 0 до 10.")
       }
     }
   }
