@@ -182,12 +182,7 @@ object TaskManager {
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
                 val newStartDate = readDate()
 
-                val newStatus =
-                  if (currentTask.status == TaskStatus.CANCELLED) {
-                    TaskStatus.CANCELLED
-                  } else {
-                    Task.getInitialStatus(currentTask.totalHours, currentTask.completedHours)
-                  }
+                val newStatus = getStatusAfterEdit(currentTask)
 
                 val updatedTask = currentTask.copy(
                   startDate = newStartDate,
@@ -206,12 +201,7 @@ object TaskManager {
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
                 val newDeadline = readDate()
 
-                val newStatus =
-                  if (currentTask.status == TaskStatus.CANCELLED) {
-                    TaskStatus.CANCELLED
-                  } else {
-                    Task.getInitialStatus(currentTask.totalHours, currentTask.completedHours)
-                  }
+                val newStatus = getStatusAfterEdit(currentTask)
 
                 val updatedTask = currentTask.copy(
                   deadline = newDeadline,
@@ -235,7 +225,8 @@ object TaskManager {
 
                 val newPriority = readPriority()
 
-                val updatedTask = currentTask.copy(priority = newPriority)
+                val newStatus = getStatusAfterPlanningEdit(currentTask)
+                val updatedTask = currentTask.copy(priority = newPriority, status = newStatus)
 
                 updatedTasks = replaceTask(updatedTasks, updatedTask)
                 currentTask = updatedTask
@@ -257,9 +248,11 @@ object TaskManager {
                     ((currentTask.totalHours - currentTask.completedHours) * 60).toInt
                   }
 
+                val newStatus = getStatusAfterPlanningEdit(currentTask)
                 val updatedTask = currentTask.copy(
                   canSplit = newCanSplit,
-                  minBlockMinutes = newMinBlockMinutes
+                  minBlockMinutes = newMinBlockMinutes,
+                  status = newStatus
                 )
 
                 if (validateTask(updatedTask)) {
@@ -275,8 +268,10 @@ object TaskManager {
                   println("Введите новую минимальную продолжительность блока в минутах: ")
                   val newMinBlockMinutes = readInt()
 
+                  val newStatus = getStatusAfterPlanningEdit(currentTask)
                   val updatedTask = currentTask.copy(
-                    minBlockMinutes = newMinBlockMinutes
+                    minBlockMinutes = newMinBlockMinutes,
+                    status = newStatus
                   )
 
                   if (validateTask(updatedTask)) {
@@ -361,6 +356,22 @@ object TaskManager {
           println("Дело с таким ID не найдено.")
           tasks
       }
+    }
+  }
+
+  def getStatusAfterEdit(task: Task): TaskStatus = {
+    if (task.status == TaskStatus.CANCELLED) {
+      TaskStatus.CANCELLED
+    } else {
+      Task.getInitialStatus(task.totalHours, task.completedHours)
+    }
+  }
+
+  def getStatusAfterPlanningEdit(task: Task): TaskStatus = {
+    if (task.status == TaskStatus.UNPLACED) {
+      Task.getInitialStatus(task.totalHours, task.completedHours)
+    } else {
+      task.status
     }
   }
 }
