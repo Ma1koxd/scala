@@ -134,8 +134,14 @@ object Scheduler {
   }
 
   def sortTasks(tasks: List[Task]): List[Task] = {
-    tasks.sortWith((task1, task2) => task1.priority.value > task2.priority.value
-      || (task1.priority.value == task2.priority.value && task1.deadline.isBefore(task2.deadline)))
+    tasks.sortWith((task1, task2) =>
+      if (task1.priority.value != task2.priority.value) {
+        task1.priority.value > task2.priority.value
+      } else if (task1.deadline != task2.deadline) {
+        task1.deadline.isBefore(task2.deadline)
+      } else {
+        task1.id < task2.id
+      })
   }
 
   def shouldScheduleTask(task: Task): Boolean = {
