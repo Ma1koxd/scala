@@ -130,4 +130,13 @@ object Scheduler {
       }
     }
   }
+
+  def sortTasks(tasks: List[Task]): List[Task] = {
+    tasks.sortWith((task1, task2) => task1.priority.value > task2.priority.value
+      || (task1.priority.value == task2.priority.value && task1.deadline.isBefore(task2.deadline)))
+  }
+
+  def scheduleAllTasks(tasks: List[Task], freeTimeSlots: List[FreeTimeSlot]): Unit = {
+    val sortedTasks = sortTasks(tasks)
+  }
 }
