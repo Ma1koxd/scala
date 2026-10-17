@@ -155,6 +155,14 @@ object Scheduler {
           case Some(blocks) =>
             allBlocks = allBlocks ++ blocks
             updatedFreeTimeSlots = newFreeTimeSlots
+
+            val updatedTask = task.copy(status = Task.getInitialStatus(task.totalHours, task.completedHours))
+            updatedTasks = updatedTasks.map(currentTask =>
+              if (currentTask.id == task.id) {
+                updatedTask
+              } else {
+                currentTask
+              })
           case None =>
             val unplacedTask = task.copy(status = TaskStatus.UNPLACED)
             unplacedTasks = unplacedTasks :+ unplacedTask
