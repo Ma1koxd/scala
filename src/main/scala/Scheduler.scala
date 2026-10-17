@@ -139,12 +139,13 @@ object Scheduler {
   def scheduleAllTasks(
                         tasks: List[Task],
                         freeTimeSlots: List[FreeTimeSlot]
-                      ): (List[ScheduledBlock], List[FreeTimeSlot], List[Task]) = {
+                      ): (List[ScheduledBlock], List[FreeTimeSlot], List[Task], List[Task]) = {
     val sortedTasks = sortTasks(tasks)
 
     var allBlocks = List.empty[ScheduledBlock]
     var updatedFreeTimeSlots = freeTimeSlots
     var unplacedTasks = List.empty[Task]
+    var updatedTasks = tasks
 
     for (task <- sortedTasks) {
       if (task.remainingMinutes > 0) {
@@ -155,11 +156,18 @@ object Scheduler {
             allBlocks = allBlocks ++ blocks
             updatedFreeTimeSlots = newFreeTimeSlots
           case None =>
-            unplacedTasks = unplacedTasks :+ task
+            val unplacedTask = task.copy(status = TaskStatus.UNPLACED)
+            unplacedTasks = unplacedTasks :+ unplacedTask
+            updatedTasks = updatedTasks.map(currentTask =>
+            if (currentTask.id == task.id) {
+              unplacedTask
+            } else {
+              currentTask
+            })
         }
       }
     }
 
-    (allBlocks, updatedFreeTimeSlots, unplacedTasks)
+    (allBlocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks)
   }
 }
