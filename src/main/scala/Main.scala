@@ -1,6 +1,8 @@
 import FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
 import FreeTimePrinter.printFreeTimeSlots
-import InputUtils.readInt
+import InputUtils.{readDate, readInt}
+import ScheduledBlockPrinter.printSchedule
+import Scheduler.scheduleAllTasks
 import TaskManager.{addTask, deleteTask, editTask}
 import TaskPrinter.printTasks
 
@@ -8,6 +10,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
     var freeTimeSlots = List.empty[FreeTimeSlot]
+    var schedule = List.empty[ScheduledBlock]
     var running = true
     var nextId = 1
 
@@ -20,6 +23,8 @@ object Main {
       println("5. Добавить свободное время")
       println("6. Показать свободное время")
       println("7. Удалить свободное время")
+      println("8. Составить расписание")
+      println("9. Показать расписание")
       println("0. Выход")
 
       val choice = readInt()
@@ -42,8 +47,19 @@ object Main {
           printFreeTimeSlots(freeTimeSlots)
         case 7 =>
           freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
+        case 8 =>
+          println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
+          val currentDate = readDate()
+
+          val (blocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks) = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
+          schedule = blocks
+          printSchedule(schedule)
+
+          tasks = updatedTasks
+        case 9 =>
+          printSchedule(schedule)
         case 0 => running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 7.")
+        case _ => println("Ошибка: выберите пункт от 0 до 9.")
       }
     }
   }

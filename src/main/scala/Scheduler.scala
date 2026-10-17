@@ -144,26 +144,27 @@ object Scheduler {
       task.status != TaskStatus.CANCELLED
   }
 
-  def isTaskOverdue(task: Task): Boolean = {
+  def isTaskOverdue(task: Task, currentDate: LocalDate): Boolean = {
     task.remainingMinutes > 0 &&
       task.status != TaskStatus.COMPLETED &&
       task.status != TaskStatus.CANCELLED &&
-      task.deadline.isBefore(LocalDate.now())
+      task.deadline.isBefore(currentDate)
   }
 
   def scheduleAllTasks(
                         tasks: List[Task],
-                        freeTimeSlots: List[FreeTimeSlot]
+                        freeTimeSlots: List[FreeTimeSlot],
+                        currentDate: LocalDate
                       ): (List[ScheduledBlock], List[FreeTimeSlot], List[Task], List[Task]) = {
     val sortedTasks = sortTasks(tasks)
 
     var allBlocks = List.empty[ScheduledBlock]
-    var updatedFreeTimeSlots = freeTimeSlots
+    var updatedFreeTimeSlots = freeTimeSlots.filter(slot => !slot.date.isBefore(currentDate))
     var unplacedTasks = List.empty[Task]
     var updatedTasks = tasks
 
     for (task <- sortedTasks) {
-      if (isTaskOverdue(task)) {
+      if (isTaskOverdue(task, currentDate)) {
         val overdueTask = task.copy(status = TaskStatus.OVERDUE)
 
         updatedTasks = updatedTasks.map(currentTask =>
