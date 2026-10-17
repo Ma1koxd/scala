@@ -65,6 +65,15 @@ object Main {
             printTasks(unplacedTasks)
           }
 
+          val overdueTasks = updatedTasks.filter(task =>
+            task.status == TaskStatus.OVERDUE
+          )
+
+          if (overdueTasks.nonEmpty) {
+            println("Просроченные задачи:")
+            printTasks(overdueTasks)
+          }
+
           println("Оставшееся свободное время после составления расписания:")
 
           if (updatedFreeTimeSlots.isEmpty) {
