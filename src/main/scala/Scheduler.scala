@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 object Scheduler {
   def canFitWholeTask(task: Task, slot: FreeTimeSlot): Boolean = {
     task.remainingMinutes <= slot.durationMinutes
@@ -136,6 +138,19 @@ object Scheduler {
       || (task1.priority.value == task2.priority.value && task1.deadline.isBefore(task2.deadline)))
   }
 
+  def shouldScheduleTask(task: Task): Boolean = {
+    task.remainingMinutes > 0 &&
+      task.status != TaskStatus.COMPLETED &&
+      task.status != TaskStatus.CANCELLED
+  }
+
+  def isTaskOverdue(task: Task): Boolean = {
+    task.remainingMinutes > 0 &&
+      task.status != TaskStatus.COMPLETED &&
+      task.status != TaskStatus.CANCELLED &&
+      task.deadline.isBefore(LocalDate.now())
+  }
+
   def scheduleAllTasks(
                         tasks: List[Task],
                         freeTimeSlots: List[FreeTimeSlot]
@@ -148,7 +163,16 @@ object Scheduler {
     var updatedTasks = tasks
 
     for (task <- sortedTasks) {
-      if (task.remainingMinutes > 0) {
+      if (isTaskOverdue(task)) {
+        val overdueTask = task.copy(status = TaskStatus.OVERDUE)
+
+        updatedTasks = updatedTasks.map(currentTask =>
+          if (currentTask.id == task.id) {
+            overdueTask
+          } else {
+            currentTask
+          })
+      } else if (shouldScheduleTask(task)) {
         val (blocksOption, newFreeTimeSlots) = scheduleTask(task, updatedFreeTimeSlots)
 
         blocksOption match {
