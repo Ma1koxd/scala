@@ -60,6 +60,19 @@ object Main {
           schedule = blocks
           printSchedule(schedule)
 
+          if (unplacedTasks.nonEmpty) {
+            println("Не удалось разместить следующие задачи:")
+            printTasks(unplacedTasks)
+          }
+
+          println("Оставшееся свободное время после составления расписания:")
+
+          if (updatedFreeTimeSlots.isEmpty) {
+            println("Свободного времени не осталось.\n")
+          } else {
+            printFreeTimeSlots(updatedFreeTimeSlots)
+          }
+
           tasks = updatedTasks
         case 9 =>
           printSchedule(schedule)
