@@ -136,7 +136,30 @@ object Scheduler {
       || (task1.priority.value == task2.priority.value && task1.deadline.isBefore(task2.deadline)))
   }
 
-  def scheduleAllTasks(tasks: List[Task], freeTimeSlots: List[FreeTimeSlot]): Unit = {
+  def scheduleAllTasks(
+                        tasks: List[Task],
+                        freeTimeSlots: List[FreeTimeSlot]
+                      ): (List[ScheduledBlock], List[FreeTimeSlot], List[Task]) = {
     val sortedTasks = sortTasks(tasks)
+
+    var allBlocks = List.empty[ScheduledBlock]
+    var updatedFreeTimeSlots = freeTimeSlots
+    var unplacedTasks = List.empty[Task]
+
+    for (task <- sortedTasks) {
+      if (task.remainingMinutes > 0) {
+        val (blocksOption, newFreeTimeSlots) = scheduleTask(task, updatedFreeTimeSlots)
+
+        blocksOption match {
+          case Some(blocks) =>
+            allBlocks = allBlocks ++ blocks
+            updatedFreeTimeSlots = newFreeTimeSlots
+          case None =>
+            unplacedTasks = unplacedTasks :+ task
+        }
+      }
+    }
+
+    (allBlocks, updatedFreeTimeSlots, unplacedTasks)
   }
 }
