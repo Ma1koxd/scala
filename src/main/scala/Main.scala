@@ -11,6 +11,7 @@ object Main {
     var tasks = List.empty[Task]
     var freeTimeSlots = List.empty[FreeTimeSlot]
     var schedule = List.empty[ScheduledBlock]
+    var remainingFreeTimeSlots = List.empty[FreeTimeSlot]
     var running = true
     var nextId = 1
 
@@ -36,28 +37,34 @@ object Main {
           tasks = updatedTasks
           nextId = updatedNextId
           schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 2 =>
           printTasks(tasks)
         case 3 =>
           tasks = editTask(tasks)
           schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 4 =>
           tasks = deleteTask(tasks)
           schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 5 =>
           freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
           schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 6 =>
-          printFreeTimeSlots(freeTimeSlots)
+          printFreeTimeSlots(remainingFreeTimeSlots)
         case 7 =>
           freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
           schedule = List.empty[ScheduledBlock]
+          remainingFreeTimeSlots = freeTimeSlots
         case 8 =>
           println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
           val currentDate = readDate()
 
           val (blocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks) = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
           schedule = blocks
+          remainingFreeTimeSlots = updatedFreeTimeSlots
           printSchedule(schedule)
 
           if (unplacedTasks.nonEmpty) {
@@ -76,10 +83,10 @@ object Main {
 
           println("Оставшееся свободное время после составления расписания:")
 
-          if (updatedFreeTimeSlots.isEmpty) {
+          if (remainingFreeTimeSlots.isEmpty) {
             println("Свободного времени не осталось.\n")
           } else {
-            printFreeTimeSlots(updatedFreeTimeSlots)
+            printFreeTimeSlots(remainingFreeTimeSlots)
           }
 
           tasks = updatedTasks
