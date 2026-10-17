@@ -17,18 +17,6 @@ object Scheduler {
     isSlotWithinTaskDates(task,slot) && slot.durationMinutes >= requiredMinutes
   }
 
-  def canUseSlot(task: Task, slot: FreeTimeSlot): Boolean = {
-    if (task.canSplit){
-      canUseSlotForSplitTask(task,slot, task.remainingMinutes)
-    } else {
-      canPlaceWholeTask(task, slot)
-    }
-  }
-
-  def findSuitableSlots(task: Task, freeTimeSlots: List[FreeTimeSlot]): List[FreeTimeSlot] = {
-    freeTimeSlots.filter(slot => canUseSlot(task,slot))
-  }
-
   def createWholeTaskBlock(task: Task, slot: FreeTimeSlot): ScheduledBlock = {
     val endTime = slot.startTime.plusMinutes(task.remainingMinutes)
 
@@ -78,7 +66,7 @@ object Scheduler {
     sortFreeTimeSlots(updatedSlots)
   }
 
-  def scheduleWholeTaskWithUpdatedSlots(
+  def scheduleWholeTask(
                          task: Task,
                          freeTimeSlots: List[FreeTimeSlot]
                        ): (Option[ScheduledBlock], List[FreeTimeSlot]) = {
@@ -98,7 +86,7 @@ object Scheduler {
     }
   }
 
-  def scheduleSplitTaskWithUpdatedSlots(
+  def scheduleSplitTask(
                          task: Task,
                          freeTimeSlots: List[FreeTimeSlot]
                        ): (Option[List[ScheduledBlock]], List[FreeTimeSlot]) = {
@@ -131,9 +119,9 @@ object Scheduler {
                     freeTimeSlots: List[FreeTimeSlot]
                   ): (Option[List[ScheduledBlock]], List[FreeTimeSlot]) = {
     if (task.canSplit) {
-      scheduleSplitTaskWithUpdatedSlots(task, freeTimeSlots)
+      scheduleSplitTask(task, freeTimeSlots)
     } else {
-      val (blockOption, updatedFreeTimeSlots) = scheduleWholeTaskWithUpdatedSlots(task, freeTimeSlots)
+      val (blockOption, updatedFreeTimeSlots) = scheduleWholeTask(task, freeTimeSlots)
       blockOption match {
         case Some(block) =>
           (Some(List(block)), updatedFreeTimeSlots)
