@@ -2,6 +2,7 @@ import ConfigManager.loadConfig
 import FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
 import FreeTimePrinter.printFreeTimeSlots
 import InputUtils.{readDate, readInt}
+import ReportManager.{buildReport, saveReport}
 import ScheduledBlockPrinter.printSchedule
 import Scheduler.scheduleAllTasks
 import TaskManager.{addTask, cancelTask, deleteTask, editTask}
@@ -42,6 +43,7 @@ object Main {
       println("9. Составить расписание")
       println("10. Показать расписание")
       println("11. Перезагрузить конфигурацию")
+      println("12. Создать отчёт")
       println("0. Выход")
 
       val choice = readInt()
@@ -126,6 +128,14 @@ object Main {
           printSchedule(schedule)
         case 11 =>
           config = loadConfig("config.json", config)
+        case 12 =>
+          val report = buildReport(
+            tasks,
+            schedule,
+            remainingFreeTimeSlots
+          )
+
+          saveReport(config.reportDirectory, report)
         case 0 =>
           val state = AppState(
             tasks,
@@ -135,7 +145,7 @@ object Main {
 
           saveState(state, config.stateFile)
           running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 11.")
+        case _ => println("Ошибка: выберите пункт от 0 до 12.")
       }
     }
   }

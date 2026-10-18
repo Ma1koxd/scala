@@ -1,15 +1,39 @@
 {
   "tasks": [
     {
-      "id": 1,
-      "name": "Курсовая",
-      "totalHours": 20,
-      "completedHours": 10,
-      "startDate": "2020-10-11",
-      "deadline": "2020-11-20",
+      "id": 3,
+      "name": "Курс1",
+      "totalHours": 4,
+      "completedHours": 4,
+      "startDate": "2020-10-10",
+      "deadline": "2020-11-10",
       "priority": "CRITICAL",
-      "canSplit": true,
-      "minBlockMinutes": 30,
+      "canSplit": false,
+      "minBlockMinutes": 0,
+      "status": "COMPLETED"
+    },
+    {
+      "id": 4,
+      "name": "3",
+      "totalHours": 1,
+      "completedHours": 0,
+      "startDate": "2020-10-11",
+      "deadline": "2020-10-11",
+      "priority": "CRITICAL",
+      "canSplit": false,
+      "minBlockMinutes": 60,
+      "status": "PLANNED"
+    },
+    {
+      "id": 5,
+      "name": "Курс2",
+      "totalHours": 3,
+      "completedHours": 1,
+      "startDate": "2020-10-10",
+      "deadline": "2020-11-10",
+      "priority": "CRITICAL",
+      "canSplit": false,
+      "minBlockMinutes": 120,
       "status": "IN_PROGRESS"
     }
   ],
@@ -20,5 +44,5 @@
       "endTime": "20:00"
     }
   ],
-  "nextId": 3
+  "nextId": 6
 }
