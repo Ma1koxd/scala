@@ -73,7 +73,14 @@ object Main {
           printSchedule(schedule)
 
           if (unplacedTasks.nonEmpty) {
-            println("\nНе удалось разместить следующие задачи:\n")
+            val totalUnplacedMinutes = unplacedTasks.map(task => task.remainingMinutes).sum
+            val totalUnplacedHours = totalUnplacedMinutes / 60.0
+
+            println("\nПлан построен не полностью.")
+            println("Не удалось разместить задач: " + unplacedTasks.length)
+            println("Не размещено работы: " + totalUnplacedHours + " часов")
+            println("\nНе удалось разместить следующие задачи: \n")
+
             for (task <- unplacedTasks) {
               printTask(task)
             }
