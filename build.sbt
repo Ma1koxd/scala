@@ -4,8 +4,6 @@ lazy val root = rootProject
   .settings(
     name := "untitled",
     libraryDependencies ++= Seq(
-      //You can add library dependencies here, for example,
-      //"org.scalatest" %% "scalatest" % "3.2.19" % Test,
-      //"org.scalameta" %% "munit" % "1.2.3" % Test
+      "com.lihaoyi" %% "upickle" % "4.4.3"
     )
   )

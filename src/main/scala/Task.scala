@@ -1,6 +1,8 @@
 import java.time.LocalDate
+import JsonFormats.given
+import upickle.default.ReadWriter
 
-case class Task(id: Int,
+case class Task (id: Int,
                 name: String,
                 totalHours: Double,
                 completedHours: Double,
@@ -10,7 +12,7 @@ case class Task(id: Int,
                 canSplit: Boolean,
                 minBlockMinutes: Int,
                 status: TaskStatus,
-               ){
+               ) derives ReadWriter {
   def remainingMinutes: Long = {
     math.round((totalHours-completedHours)*60)
   }

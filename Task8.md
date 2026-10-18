@@ -520,9 +520,28 @@ ID задачи: 2
 
 ```json
 {
-  "logFile": "planner.log",
-  "stateFile": "planner-state.json",
-  "reportDirectory": "reports"
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Курсовая",
+      "totalHours": 20,
+      "completedHours": 10,
+      "startDate": "2020-10-11",
+      "deadline": "2020-11-20",
+      "priority": "CRITICAL",
+      "canSplit": true,
+      "minBlockMinutes": 30,
+      "status": "IN_PROGRESS"
+    }
+  ],
+  "freeTimeSlots": [
+    {
+      "date": "2020-10-15",
+      "startTime": "10:00",
+      "endTime": "20:00"
+    }
+  ],
+  "nextId": 3
 }
 ```
 

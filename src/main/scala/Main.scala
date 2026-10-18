@@ -5,6 +5,7 @@ import ScheduledBlockPrinter.printSchedule
 import Scheduler.scheduleAllTasks
 import TaskManager.{addTask, cancelTask, deleteTask, editTask}
 import TaskPrinter.{printTask, printTasks}
+import StateManager.{loadState, saveState}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -14,6 +15,17 @@ object Main {
     var remainingFreeTimeSlots = List.empty[FreeTimeSlot]
     var running = true
     var nextId = 1
+
+    loadState("planner-state.json") match {
+      case Some(state) =>
+        tasks = state.tasks
+        freeTimeSlots = state.freeTimeSlots
+        nextId = state.nextId
+
+      case None =>
+    }
+
+    remainingFreeTimeSlots = freeTimeSlots
 
     while (running){
       println("Меню:")
@@ -109,7 +121,15 @@ object Main {
           tasks = updatedTasks
         case 10 =>
           printSchedule(schedule)
-        case 0 => running = false
+        case 0 =>
+          val state = AppState(
+            tasks,
+            freeTimeSlots,
+            nextId
+          )
+
+          saveState(state, "planner-state.json")
+          running = false
         case _ => println("Ошибка: выберите пункт от 0 до 10.")
       }
     }
