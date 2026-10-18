@@ -4,10 +4,6 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
 *.iws
 *.iml
 *.ipr
@@ -45,3 +41,11 @@ build/
 
 ### Scala ###
 .bsp/
+
+### IntelliJ IDEA project ###
+.idea/
+
+### Application generated files ###
+planner-state.json
+planner.log
+reports/
