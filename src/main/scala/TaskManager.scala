@@ -10,16 +10,39 @@ object TaskManager {
     val name = readLine()
 
     println("Введите трудоёмкость в часах:")
-    val totalHours = readDouble()
+    var totalHours = readDouble()
+
+    while (totalHours <= 0) {
+      println("Ошибка: трудоёмкость должна быть больше нуля.")
+      println("Введите трудоёмкость в часах:")
+      totalHours = readDouble()
+    }
 
     println("Сколько часов уже выполнено:")
-    val completedHours = readDouble()
+    var completedHours = readDouble()
+
+    while (completedHours < 0 || completedHours > totalHours) {
+      if (completedHours < 0) {
+        println("Ошибка: количество выполненных часов не может быть отрицательным.")
+      } else {
+        println("Ошибка: количество выполненных часов не может превышать общую трудоёмкость.")
+      }
+
+      println("Сколько часов уже выполнено:")
+      completedHours = readDouble()
+    }
 
     println("Введите дату начала (ГГГГ-ММ-ДД): ")
     val startDate = readDate()
 
     println("Введите дату срока (ГГГГ-ММ-ДД): ")
-    val deadline = readDate()
+    var deadline = readDate()
+
+    while (deadline.isBefore(startDate)) {
+      println("Ошибка: дедлайн не может быть раньше даты начала.")
+      println("Введите дату срока (ГГГГ-ММ-ДД): ")
+      deadline = readDate()
+    }
 
     println("Выберите приоритет выполнения:\n1)Низкий\n2)Средний\n3)Высокий\n4)Наивысший")
     val priority = readPriority()
@@ -29,9 +52,15 @@ object TaskManager {
 
     val minBlockMinutes = if (canSplit) {
       println("Введите минимальную продолжительность блока в минутах: ")
-      readInt()
-    }
-    else {
+      var minutes = readInt()
+
+      while (minutes <= 0) {
+        println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
+        println("Введите минимальную продолжительность блока в минутах: ")
+        minutes = readInt()
+      }
+      minutes
+    } else {
       ((totalHours - completedHours) * 60).toInt
     }
 
