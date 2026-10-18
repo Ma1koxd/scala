@@ -1,3 +1,5 @@
+package model
+
 import java.time.{Duration, LocalDate, LocalTime}
 
 case class ScheduledBlock(

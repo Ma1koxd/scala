@@ -1,3 +1,7 @@
+package io
+
+import model.{FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
+
 import java.io.{File, PrintWriter}
 
 object ReportManager {

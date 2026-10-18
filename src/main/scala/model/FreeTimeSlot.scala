@@ -1,6 +1,9 @@
-import java.time.{Duration, LocalDate, LocalTime}
-import JsonFormats.given
+package model
+
+import io.JsonFormats.given
 import upickle.default.ReadWriter
+
+import java.time.{Duration, LocalDate, LocalTime}
 
 case class FreeTimeSlot(
                          date: LocalDate,

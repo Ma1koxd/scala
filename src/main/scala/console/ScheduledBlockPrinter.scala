@@ -1,3 +1,7 @@
+package console
+
+import model.ScheduledBlock
+
 object ScheduledBlockPrinter {
   def printScheduledBlock(block: ScheduledBlock): Unit = {
     println("ID задачи: " + block.taskId)

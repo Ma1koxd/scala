@@ -1,3 +1,7 @@
+package console
+
+import model.FreeTimeSlot
+
 object FreeTimePrinter {
 
   def printFreeTimeSlot(slot: FreeTimeSlot): Unit = {

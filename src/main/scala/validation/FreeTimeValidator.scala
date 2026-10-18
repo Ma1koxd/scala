@@ -1,3 +1,7 @@
+package validation
+
+import model.FreeTimeSlot
+
 object FreeTimeValidator {
   def validateFreeTimeSlot(slot: FreeTimeSlot): Boolean = {
     if (!slot.endTime.isAfter(slot.startTime)){

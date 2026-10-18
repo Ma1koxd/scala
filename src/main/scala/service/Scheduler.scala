@@ -1,3 +1,7 @@
+package service
+
+import model.{FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
+
 import java.time.LocalDate
 
 object Scheduler {

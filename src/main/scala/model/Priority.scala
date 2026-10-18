@@ -1,3 +1,5 @@
+package model
+
 import upickle.default.ReadWriter
 
 enum Priority(val value: Int) derives ReadWriter{

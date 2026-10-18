@@ -1,5 +1,9 @@
-import java.io.File
+package io
+
+import model.AppConfig
 import upickle.default.read
+
+import java.io.File
 
 object ConfigManager {
   val defaultConfig: AppConfig = AppConfig(

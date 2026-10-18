@@ -1,6 +1,9 @@
-import InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
-import TaskPrinter.printTask
-import TaskValidator.validateTask
+package service
+
+import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
+import console.TaskPrinter.printTask
+import model.{Task, TaskStatus}
+import validation.TaskValidator.validateTask
 
 import scala.io.StdIn.readLine
 

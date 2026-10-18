@@ -1,5 +1,9 @@
-import java.time.{LocalDate, LocalTime}
+package console
+
+import model.Priority
+
 import java.time.format.DateTimeParseException
+import java.time.{LocalDate, LocalTime}
 import scala.io.StdIn.readLine
 
 object InputUtils {

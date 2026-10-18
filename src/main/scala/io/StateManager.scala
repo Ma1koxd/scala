@@ -1,5 +1,9 @@
-import java.io.{File, PrintWriter}
+package io
+
+import model.AppState
 import upickle.default.{read, writeTo}
+
+import java.io.{File, PrintWriter}
 
 object StateManager {
   def saveState(state: AppState, fileName: String): Boolean = {

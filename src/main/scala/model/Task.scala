@@ -1,6 +1,9 @@
-import java.time.LocalDate
-import JsonFormats.given
+package model
+
+import io.JsonFormats.given
 import upickle.default.ReadWriter
+
+import java.time.LocalDate
 
 case class Task (id: Int,
                 name: String,

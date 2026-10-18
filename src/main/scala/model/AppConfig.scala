@@ -1,3 +1,5 @@
+package model
+
 import upickle.default.ReadWriter
 
 case class AppConfig(

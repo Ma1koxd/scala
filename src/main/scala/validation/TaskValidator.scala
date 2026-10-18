@@ -1,3 +1,7 @@
+package validation
+
+import model.Task
+
 object TaskValidator {
   def validateTask(task: Task): Boolean = {
     if (task.totalHours <= 0) {

@@ -1,5 +1,8 @@
-import FreeTimeValidator.{hasOverlap, validateFreeTimeSlot}
-import InputUtils.{readDate, readTime}
+package service
+
+import console.InputUtils.{readDate, readTime}
+import model.FreeTimeSlot
+import validation.FreeTimeValidator.{hasOverlap, validateFreeTimeSlot}
 
 object FreeTimeManager {
   def createFreeTimeSlot(): FreeTimeSlot = {

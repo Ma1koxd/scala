@@ -1,3 +1,7 @@
+package console
+
+import model.Task
+
 object TaskPrinter {
   def printTask(task: Task): Unit = {
     println("ID: " + task.id)

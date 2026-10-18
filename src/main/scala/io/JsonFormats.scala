@@ -1,5 +1,8 @@
-import java.time.{LocalDate, LocalTime}
+package io
+
 import upickle.default.{ReadWriter, readwriter}
+
+import java.time.{LocalDate, LocalTime}
 
 object JsonFormats {
   given ReadWriter[LocalDate] = readwriter[String].bimap(

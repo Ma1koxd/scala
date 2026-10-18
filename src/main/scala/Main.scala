@@ -1,14 +1,15 @@
-import AppLogger.log
-import ConfigManager.loadConfig
-import FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
-import FreeTimePrinter.printFreeTimeSlots
-import InputUtils.{readDate, readInt}
-import ReportManager.{buildReport, saveReport}
-import ScheduledBlockPrinter.printSchedule
-import Scheduler.scheduleAllTasks
-import TaskManager.{addTask, cancelTask, deleteTask, editTask}
-import TaskPrinter.{printTask, printTasks}
-import StateManager.{loadState, saveState}
+import io.AppLogger.log
+import io.ConfigManager.loadConfig
+import service.FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
+import console.FreeTimePrinter.printFreeTimeSlots
+import console.InputUtils.{readDate, readInt}
+import io.ReportManager.{buildReport, saveReport}
+import console.ScheduledBlockPrinter.printSchedule
+import service.Scheduler.scheduleAllTasks
+import service.TaskManager.{addTask, cancelTask, deleteTask, editTask}
+import console.TaskPrinter.{printTask, printTasks}
+import io.StateManager.{loadState, saveState}
+import model.{AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
 object Main {
   def main(args: Array[String]): Unit = {
