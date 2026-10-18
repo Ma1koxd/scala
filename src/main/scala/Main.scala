@@ -1,3 +1,4 @@
+import ConfigManager.loadConfig
 import FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
 import FreeTimePrinter.printFreeTimeSlots
 import InputUtils.{readDate, readInt}
@@ -15,8 +16,9 @@ object Main {
     var remainingFreeTimeSlots = List.empty[FreeTimeSlot]
     var running = true
     var nextId = 1
+    var config = loadConfig("config.json")
 
-    loadState("planner-state.json") match {
+    loadState(config.stateFile) match {
       case Some(state) =>
         tasks = state.tasks
         freeTimeSlots = state.freeTimeSlots
@@ -39,6 +41,7 @@ object Main {
       println("8. Удалить свободное время")
       println("9. Составить расписание")
       println("10. Показать расписание")
+      println("11. Перезагрузить конфигурацию")
       println("0. Выход")
 
       val choice = readInt()
@@ -121,6 +124,8 @@ object Main {
           tasks = updatedTasks
         case 10 =>
           printSchedule(schedule)
+        case 11 =>
+          config = loadConfig("config.json", config)
         case 0 =>
           val state = AppState(
             tasks,
@@ -128,9 +133,9 @@ object Main {
             nextId
           )
 
-          saveState(state, "planner-state.json")
+          saveState(state, config.stateFile)
           running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 10.")
+        case _ => println("Ошибка: выберите пункт от 0 до 11.")
       }
     }
   }

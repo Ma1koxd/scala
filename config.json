@@ -1,0 +1,5 @@
+{
+  "logFile": "planner.log",
+  "stateFile": "planner-state.json",
+  "reportDirectory": "reports"
+}
