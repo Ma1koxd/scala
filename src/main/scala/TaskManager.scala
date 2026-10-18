@@ -145,7 +145,17 @@ object TaskManager {
                 printTask(updatedTask)
               case 2 =>
                 println("Введите новую трудоёмкость в часах: ")
-                val newTotalHours = readDouble()
+                var newTotalHours = readDouble()
+
+                while (newTotalHours <= 0 || newTotalHours < currentTask.completedHours) {
+                  if (newTotalHours <= 0) {
+                    println("Ошибка: трудоёмкость должна быть больше нуля.")
+                  } else {
+                    println("Ошибка: трудоёмкость не может быть меньше уже выполненного количества часов.")
+                  }
+                  println("Введите новую трудоёмкость в часах: ")
+                  newTotalHours = readDouble()
+                }
 
                 val newStatus =
                   if (currentTask.status == TaskStatus.CANCELLED) {
@@ -177,7 +187,18 @@ object TaskManager {
                 }
               case 3 =>
                 println("Введите количество выполненных часов: ")
-                val newCompletedHours = readDouble()
+                var newCompletedHours = readDouble()
+
+                while (newCompletedHours < 0 || newCompletedHours > currentTask.totalHours) {
+                  if (newCompletedHours < 0) {
+                    println("Ошибка: количество выполненных часов не может быть отрицательным.")
+                  } else {
+                    println("Ошибка: количество выполненных часов не может превышать общую трудоёмкость.")
+                  }
+
+                  println("Введите количество выполненных часов: ")
+                  newCompletedHours = readDouble()
+                }
 
                 val newStatus =
                   if (currentTask.status == TaskStatus.CANCELLED) {
@@ -209,7 +230,13 @@ object TaskManager {
                 }
               case 4 =>
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
-                val newStartDate = readDate()
+                var newStartDate = readDate()
+
+                while (newStartDate.isAfter(currentTask.deadline)) {
+                  println("Ошибка: дата начала не может быть позже дедлайна.")
+                  println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
+                  newStartDate = readDate()
+                }
 
                 val newStatus = getStatusAfterEdit(currentTask)
 
@@ -228,7 +255,13 @@ object TaskManager {
                 }
               case 5 =>
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
-                val newDeadline = readDate()
+                var newDeadline = readDate()
+
+                while (newDeadline.isBefore(currentTask.startDate)) {
+                  println("Ошибка: дедлайн не может быть раньше даты начала.")
+                  println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
+                  newDeadline = readDate()
+                }
 
                 val newStatus = getStatusAfterEdit(currentTask)
 
@@ -272,7 +305,14 @@ object TaskManager {
                 val newMinBlockMinutes =
                   if (newCanSplit) {
                     println("Введите минимальную продолжительность блока в минутах: ")
-                    readInt()
+                    var minutes = readInt()
+
+                    while (minutes <= 0) {
+                      println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
+                      println("Введите минимальную продолжительность блока в минутах: ")
+                      minutes = readInt()
+                    }
+                    minutes
                   } else {
                     ((currentTask.totalHours - currentTask.completedHours) * 60).toInt
                   }
@@ -295,7 +335,13 @@ object TaskManager {
               case 8 =>
                 if (currentTask.canSplit) {
                   println("Введите новую минимальную продолжительность блока в минутах: ")
-                  val newMinBlockMinutes = readInt()
+                  var newMinBlockMinutes = readInt()
+
+                  while (newMinBlockMinutes <= 0) {
+                    println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
+                    println("Введите новую минимальную продолжительность блока в минутах: ")
+                    newMinBlockMinutes = readInt()
+                  }
 
                   val newStatus = getStatusAfterPlanningEdit(currentTask)
                   val updatedTask = currentTask.copy(
