@@ -2,7 +2,7 @@ import java.io.{File, PrintWriter}
 import upickle.default.{read, writeTo}
 
 object StateManager {
-  def saveState(state: AppState, fileName: String): Unit = {
+  def saveState(state: AppState, fileName: String): Boolean = {
     try {
       val writer = new PrintWriter(new File(fileName))
 
@@ -12,9 +12,11 @@ object StateManager {
       } finally {
         writer.close()
       }
+      true
     } catch {
       case exception: Exception =>
         println("Ошибка при сохранении состояния: " + exception.getMessage)
+        false
     }
   }
 

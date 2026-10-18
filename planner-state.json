@@ -22,7 +22,7 @@
       "priority": "CRITICAL",
       "canSplit": false,
       "minBlockMinutes": 60,
-      "status": "PLANNED"
+      "status": "OVERDUE"
     },
     {
       "id": 5,
@@ -35,6 +35,18 @@
       "canSplit": false,
       "minBlockMinutes": 120,
       "status": "IN_PROGRESS"
+    },
+    {
+      "id": 6,
+      "name": "Курсовая",
+      "totalHours": 10,
+      "completedHours": 4,
+      "startDate": "2020-10-11",
+      "deadline": "2020-11-11",
+      "priority": "CRITICAL",
+      "canSplit": false,
+      "minBlockMinutes": 360,
+      "status": "IN_PROGRESS"
     }
   ],
   "freeTimeSlots": [
@@ -42,7 +54,12 @@
       "date": "2020-10-15",
       "startTime": "10:00",
       "endTime": "20:00"
+    },
+    {
+      "date": "2020-10-13",
+      "startTime": "10:00",
+      "endTime": "22:00"
     }
   ],
-  "nextId": 6
+  "nextId": 7
 }

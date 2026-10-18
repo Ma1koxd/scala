@@ -128,7 +128,7 @@ object ReportManager {
     report.toString()
   }
 
-  def saveReport(reportDirectory: String, content: String): Unit = {
+  def saveReport(reportDirectory: String, content: String): Boolean = {
     try {
       val directory = new File(reportDirectory)
 
@@ -145,9 +145,11 @@ object ReportManager {
       } finally {
         writer.close()
       }
+      true
     } catch {
       case exception: Exception =>
         println("Ошибка при создании отчёта: " + exception.getMessage)
+        false
     }
   }
 }
