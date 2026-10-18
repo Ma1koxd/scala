@@ -135,10 +135,10 @@ object Scheduler {
 
   def sortTasks(tasks: List[Task]): List[Task] = {
     tasks.sortWith((task1, task2) =>
-      if (task1.priority.value != task2.priority.value) {
-        task1.priority.value > task2.priority.value
-      } else if (task1.deadline != task2.deadline) {
+      if (task1.deadline != task2.deadline) {
         task1.deadline.isBefore(task2.deadline)
+      } else if (task1.priority.value != task2.priority.value) {
+        task1.priority.value > task2.priority.value
       } else {
         task1.id < task2.id
       })
