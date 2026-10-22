@@ -1,6 +1,6 @@
 package service
 
-import model.{FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
+import model.{FreeTimeSlot, ScheduleResult, ScheduledBlock, Task, TaskStatus}
 
 import java.time.LocalDate
 
@@ -165,7 +165,7 @@ object Scheduler {
                         tasks: List[Task],
                         freeTimeSlots: List[FreeTimeSlot],
                         currentDate: LocalDate
-                      ): (List[ScheduledBlock], List[FreeTimeSlot], List[Task], List[Task]) = {
+                      ): ScheduleResult = {
     val sortedTasks = sortTasks(tasks)
 
     var allBlocks = List.empty[ScheduledBlock]
@@ -211,6 +211,6 @@ object Scheduler {
       }
     }
 
-    (allBlocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks)
+    ScheduleResult(allBlocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks)
   }
 }

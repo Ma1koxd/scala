@@ -135,29 +135,29 @@ object Main {
           val currentDate = readDate()
           log(config.logFile, "Начато построение расписания на дату: " + currentDate)
 
-          val (blocks, updatedFreeTimeSlots, unplacedTasks, updatedTasks) = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
-          schedule = blocks
-          remainingFreeTimeSlots = updatedFreeTimeSlots
+          val result = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
+          schedule = result.blocks
+          remainingFreeTimeSlots = result.remainingFreeTimeSlots
           log(config.logFile, "Построение расписания завершено. Создано блоков: " + schedule.length)
           printSchedule(schedule)
 
-          if (unplacedTasks.nonEmpty) {
-            val totalUnplacedMinutes = unplacedTasks.map(task => task.remainingMinutes).sum
+          if (result.unplacedTasks.nonEmpty) {
+            val totalUnplacedMinutes = result.unplacedTasks.map(task => task.remainingMinutes).sum
             val totalUnplacedHours = totalUnplacedMinutes / 60.0
-            log(config.logFile, "Не удалось разместить дел: " + unplacedTasks.length
+            log(config.logFile, "Не удалось разместить дел: " + result.unplacedTasks.length
               + ", не размещено часов: " + totalUnplacedHours)
 
             println("\nПлан построен не полностью.")
-            println("Не удалось разместить задач: " + unplacedTasks.length)
+            println("Не удалось разместить задач: " + result.unplacedTasks.length)
             println("Не размещено работы: " + totalUnplacedHours + " часов")
             println("\nНе удалось разместить следующие задачи: \n")
 
-            for (task <- unplacedTasks) {
+            for (task <- result.unplacedTasks) {
               printTask(task)
             }
           }
 
-          val overdueTasks = updatedTasks.filter(task =>
+          val overdueTasks = result.updatedTasks.filter(task =>
             task.status == TaskStatus.OVERDUE
           )
 
@@ -178,7 +178,7 @@ object Main {
             printFreeTimeSlots(remainingFreeTimeSlots)
           }
 
-          tasks = updatedTasks
+          tasks = result.updatedTasks
         case 10 =>
           printSchedule(schedule)
         case 11 =>
