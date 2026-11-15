@@ -1,14 +1,22 @@
 package validation
 
-import model.FreeTimeSlot
+import model.{FreeTimeError, FreeTimeSlot}
 
 object FreeTimeValidator {
-  def validateFreeTimeSlot(slot: FreeTimeSlot): Boolean = {
-    if (!slot.endTime.isAfter(slot.startTime)){
-      println("Ошибка: время окончания должно быть позже времени начала.")
-      false
+  // эти 2 метода в связи с использованием Either переделываем также, как и валидатор задач
+  def validateFreeTimeSlotResult(slot: FreeTimeSlot): Either[FreeTimeError, FreeTimeSlot] = {
+    if (!slot.endTime.isAfter(slot.startTime)) {
+      Left(FreeTimeError.INVALID_TIME_RANGE)
     } else {
-      true
+      Right(slot)
+    }
+  }
+
+  def validateNoOverlap(slot: FreeTimeSlot, freeTimeSlots: List[FreeTimeSlot]): Either[FreeTimeError, FreeTimeSlot] = {
+    if (hasOverlap(slot, freeTimeSlots)) {
+      Left(FreeTimeError.OVERLAPPING_SLOT)
+    } else {
+      Right(slot)
     }
   }
 

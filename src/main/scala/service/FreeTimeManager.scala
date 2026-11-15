@@ -1,8 +1,9 @@
 package service
 
+import console.FreeTimeErrorPrinter.printFreeTimeError
 import console.InputUtils.{readDate, readTime}
-import model.FreeTimeSlot
-import validation.FreeTimeValidator.{hasOverlap, validateFreeTimeSlot}
+import model.{FreeTimeError, FreeTimeSlot}
+import validation.FreeTimeValidator.{validateFreeTimeSlotResult, validateNoOverlap}
 
 object FreeTimeManager {
   def createFreeTimeSlot(): FreeTimeSlot = {
@@ -22,18 +23,28 @@ object FreeTimeManager {
     )
   }
 
+  // проверяем границы времени -> если все хорошо передаем интервал времени
+  // в validateNoOverlap, который проверяет пересечения, если проверка провалилась, то дальше
+  // передается ошибка. после 2 успешных проверок создается новый список свободного времени
+  // flatmap здесь я использовал потому, что validateNoOverlap у нас уже выдает Either,
+  // так что применение map вылилось бы в вложенный тип Either[что-то, Either],
+  // а использовав flatmap мы сохраняем проверки в один Either
+  def addFreeTimeSlotResult(freeTimeSlots: List[FreeTimeSlot], slot: FreeTimeSlot): Either[FreeTimeError, List[FreeTimeSlot]] = {
+    validateFreeTimeSlotResult(slot)
+      .flatMap(validSlot => validateNoOverlap(validSlot, freeTimeSlots))
+      .map(validSlot => freeTimeSlots :+ validSlot)
+  }
+
   def addFreeTimeSlot(freeTimeSlots: List[FreeTimeSlot]): List[FreeTimeSlot] = {
     val slot = createFreeTimeSlot()
 
-    if (!validateFreeTimeSlot(slot)){
-      freeTimeSlots
-    } else if (hasOverlap(slot, freeTimeSlots)) {
-      println("Ошибка: свободное время пересекается с уже существующим промежутком.")
-      freeTimeSlots
-    } else {
-      val updatedFreeTimeSlots = freeTimeSlots :+ slot
-      println("Свободное время добавлено успешно.")
-      updatedFreeTimeSlots
+    addFreeTimeSlotResult(freeTimeSlots, slot) match {
+      case Right(updatedFreeTimeSlots) =>
+        println("Свободное время добавлено успешно.")
+        updatedFreeTimeSlots
+      case Left(error) =>
+        printFreeTimeError(error)
+        freeTimeSlots
     }
   }
 
