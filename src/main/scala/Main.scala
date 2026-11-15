@@ -7,7 +7,7 @@ import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
 import console.TaskErrorPrinter.printTaskError
 import service.Scheduler.scheduleAllTasks
-import service.TaskManager.{addTask, cancelTask, deleteTaskResult, editTask}
+import service.TaskManager.{addTask, cancelTaskResult, deleteTaskResult, editTask}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
@@ -105,11 +105,20 @@ object Main {
     }
 
     def cancelTaskAction(): Unit = {
-      val oldTasks = tasks
-      tasks = cancelTask(tasks)
+      if (tasks.isEmpty) {
+        println("Список дел пуст.")
+      } else {
+        println("Введите ID дела для отмены:")
+        val id = readInt()
 
-      if (tasks != oldTasks) {
-        log(config.logFile, "Дело отменено")
+        cancelTaskResult(tasks, id) match {
+          case Right(updatedTasks) =>
+            tasks = updatedTasks
+            println("Дело отменено.")
+            log(config.logFile, "Дело отменено")
+          case Left(error) =>
+            printTaskError(error)
+        }
       }
 
       schedule = List.empty[ScheduledBlock]

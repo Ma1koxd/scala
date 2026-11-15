@@ -6,7 +6,7 @@ import console.TaskEditActionParser
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError, TaskStatus}
-import validation.TaskValidator.validateTaskResult
+import validation.TaskValidator.{validateCancellation, validateTaskResult}
 
 import scala.io.StdIn.readLine
 
@@ -420,40 +420,26 @@ object TaskManager {
       .map(foundTask => tasks.filter(task => task.id != foundTask.id))
   }
 
-  def cancelTask(tasks: List[Task]): List[Task] = {
-    if (tasks.isEmpty) {
-      println("Список дел пуст.")
-      tasks
-    } else {
-      println("Введите ID дела для отмены:")
-      val id = readInt()
-
-      tasks.find(task => task.id == id) match {
-        case Some(task) =>
-          if (task.status == TaskStatus.COMPLETED) {
-            println("Нельзя отменить уже завершенное дело.")
-            tasks
-          } else if (task.status == TaskStatus.CANCELLED) {
-            println("Дело уже отменено.")
-            tasks
+  // функция проверяет есть ли такая-то задача также, как и функции выше
+  // опять таки tasks.find() это у нас Option, который выдаст Some() и None,
+  // найденное Some(task) оно записывает в Right(task), после чего проверяет возможность
+  // отмены. flatmap я использую по такой же причине, что и в прошлых функциях, дабы
+  // избежать ситуации Either[что-то, Either]. После чего 2 map'а у нас занимаются:
+  // 1) если дело найдено и прошло проверку -> создает новый список
+  // 2) к каждому дело определяет либо новую, либо исходную его версии
+  def cancelTaskResult(tasks: List[Task], id: Int): Either[TaskError, List[Task]] = {
+    tasks.find(task => task.id == id)
+      .toRight(TaskError.TASK_NOT_FOUND(id))
+      .flatMap(foundTask => validateCancellation(foundTask))
+      .map(validTask =>
+        tasks.map(currentTask =>
+          if (currentTask.id == validTask.id) {
+            currentTask.copy(status = TaskStatus.CANCELLED)
           } else {
-            val updatedTasks = tasks.map(currentTask =>
-              if (currentTask.id == id) {
-                currentTask.copy(status = TaskStatus.CANCELLED)
-              } else {
-                currentTask
-              }
-            )
-
-            println("Дело отменено.")
-            updatedTasks
+            currentTask
           }
-
-        case None =>
-          println("Дело с таким ID не найдено.")
-          tasks
-      }
-    }
+        )
+      )
   }
 
   def getStatusAfterEdit(task: Task): TaskStatus = {

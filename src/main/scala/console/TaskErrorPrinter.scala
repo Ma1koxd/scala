@@ -17,6 +17,10 @@ object TaskErrorPrinter {
         println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
       case TaskError.TASK_NOT_FOUND(_) =>
         println("Дело с таким ID не найдено.")
+      case TaskError.CANNOT_CANCEL_COMPLETED_TASK(_) =>
+        println("Нельзя отменить уже завершенное дело.")
+      case TaskError.TASK_ALREADY_CANCELLED(_) =>
+        println("Дело уже отменено.")
     }
   }
 }

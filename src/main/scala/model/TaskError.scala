@@ -7,4 +7,6 @@ enum TaskError {
   case DEADLINE_BEFORE_START
   case INVALID_MIN_BLOCK_MINUTES
   case TASK_NOT_FOUND(id: Int)
+  case CANNOT_CANCEL_COMPLETED_TASK(id: Int)
+  case TASK_ALREADY_CANCELLED(id: Int)
 }

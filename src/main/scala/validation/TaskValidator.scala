@@ -1,6 +1,6 @@
 package validation
 
-import model.{Task, TaskError}
+import model.{Task, TaskError, TaskStatus}
 
 object TaskValidator {
   // данная функция возвращает какая ИМЕННО ошибка возникла или дело, если проверка успешна
@@ -16,6 +16,16 @@ object TaskValidator {
       Left(TaskError.DEADLINE_BEFORE_START)
     } else if (task.canSplit && task.minBlockMinutes <= 0) {
       Left(TaskError.INVALID_MIN_BLOCK_MINUTES)
+    } else {
+      Right(task)
+    }
+  }
+
+  def validateCancellation(task: Task): Either[TaskError, Task] = {
+    if (task.status == TaskStatus.COMPLETED) {
+      Left(TaskError.CANNOT_CANCEL_COMPLETED_TASK(task.id))
+    } else if (task.status == TaskStatus.CANCELLED) {
+      Left(TaskError.TASK_ALREADY_CANCELLED(task.id))
     } else {
       Right(task)
     }
