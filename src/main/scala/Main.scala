@@ -6,8 +6,9 @@ import console.InputUtils.{readDate, readInt}
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
 import console.TaskErrorPrinter.printTaskError
+import console.TaskInput.readTask
 import service.Scheduler.scheduleAllTasks
-import service.TaskManager.{addTask, cancelTaskResult, deleteTaskResult, editTask}
+import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult, editTask}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
@@ -43,13 +44,18 @@ object Main {
     // раздел с действиями для задач
 
     def addTaskAction(): Unit = {
-      val newTaskId = nextId
-      val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
+      println("Добавление дела")
+      val task = readTask(nextId)
 
-      tasks = updatedTasks
-      nextId = updatedNextId
-
-      log(config.logFile, "Добавлено дело ID: " + newTaskId)
+      addTaskResult(tasks, task) match {
+        case Right(updatedTasks) =>
+          tasks = updatedTasks
+          nextId = nextId + 1
+          println("Дело успешно добавлено.")
+          log(config.logFile, "Добавлено дело ID: " + task.id)
+        case Left(error) =>
+          printTaskError(error)
+      }
 
       schedule = List.empty[ScheduledBlock]
       remainingFreeTimeSlots = freeTimeSlots
