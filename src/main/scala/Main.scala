@@ -40,6 +40,8 @@ object Main {
     val view = new ConsoleMenuView()
     val controller = new MenuController(view)
 
+    // раздел с действиями для задач
+
     def addTaskAction(): Unit = {
       val newTaskId = nextId
       val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
@@ -105,6 +107,8 @@ object Main {
       remainingFreeTimeSlots = freeTimeSlots
     }
 
+    // раздел с действиями для свободного времени
+
     def addFreeTimeAction(): Unit = {
       val oldFreeTimeSlots = freeTimeSlots
       freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
@@ -131,6 +135,63 @@ object Main {
 
       schedule = List.empty[ScheduledBlock]
       remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    // раздел действий с расписанием
+
+    def buildScheduleAction(): Unit = {
+      println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
+      val currentDate = readDate()
+      log(config.logFile, "Начато построение расписания на дату: " + currentDate)
+
+      val result = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
+      schedule = result.blocks
+      remainingFreeTimeSlots = result.remainingFreeTimeSlots
+      log(config.logFile, "Построение расписания завершено. Создано блоков: " + schedule.length)
+      printSchedule(schedule)
+
+      if (result.unplacedTasks.nonEmpty) {
+        val totalUnplacedMinutes = result.unplacedTasks.map(task => task.remainingMinutes).sum
+        val totalUnplacedHours = totalUnplacedMinutes / 60.0
+        log(config.logFile, "Не удалось разместить дел: " + result.unplacedTasks.length
+          + ", не размещено часов: " + totalUnplacedHours)
+
+        println("\nПлан построен не полностью.")
+        println("Не удалось разместить задач: " + result.unplacedTasks.length)
+        println("Не размещено работы: " + totalUnplacedHours + " часов")
+        println("\nНе удалось разместить следующие задачи: \n")
+
+        for (task <- result.unplacedTasks) {
+          printTask(task)
+        }
+      }
+
+      val overdueTasks = result.updatedTasks.filter(task =>
+        task.status == TaskStatus.OVERDUE
+      )
+
+      if (overdueTasks.nonEmpty) {
+        log(config.logFile, "Обнаружено просроченных дел: " + overdueTasks.length)
+        println("\nПросроченные задачи:\n")
+
+        for (task <- overdueTasks) {
+          printTask(task)
+        }
+      }
+
+      println("Оставшееся свободное время после составления расписания:")
+
+      if (remainingFreeTimeSlots.isEmpty) {
+        println("Свободного времени не осталось.\n")
+      } else {
+        printFreeTimeSlots(remainingFreeTimeSlots)
+      }
+
+      tasks = result.updatedTasks
+    }
+
+    def showScheduleAction(): Unit = {
+      printSchedule(schedule)
     }
 
     // idea делает вещи, чтоб не запутаться, где че у тебя, кайфы чисто
@@ -181,6 +242,20 @@ object Main {
       )
     )
 
+    val scheduleMenu = MenuContainer(
+      name = "Расписание",
+      items = List(
+        MenuItem(
+          name = "Составить расписание",
+          action = () => buildScheduleAction()
+        ),
+        MenuItem(
+          name = "Показать расписание",
+          action = () => showScheduleAction()
+        )
+      )
+    )
+
     while (running){
       println("Меню:")
       println("1. Добавить дело")
@@ -217,56 +292,9 @@ object Main {
         case 8 =>
           deleteFreeTimeAction()
         case 9 =>
-          println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
-          val currentDate = readDate()
-          log(config.logFile, "Начато построение расписания на дату: " + currentDate)
-
-          val result = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
-          schedule = result.blocks
-          remainingFreeTimeSlots = result.remainingFreeTimeSlots
-          log(config.logFile, "Построение расписания завершено. Создано блоков: " + schedule.length)
-          printSchedule(schedule)
-
-          if (result.unplacedTasks.nonEmpty) {
-            val totalUnplacedMinutes = result.unplacedTasks.map(task => task.remainingMinutes).sum
-            val totalUnplacedHours = totalUnplacedMinutes / 60.0
-            log(config.logFile, "Не удалось разместить дел: " + result.unplacedTasks.length
-              + ", не размещено часов: " + totalUnplacedHours)
-
-            println("\nПлан построен не полностью.")
-            println("Не удалось разместить задач: " + result.unplacedTasks.length)
-            println("Не размещено работы: " + totalUnplacedHours + " часов")
-            println("\nНе удалось разместить следующие задачи: \n")
-
-            for (task <- result.unplacedTasks) {
-              printTask(task)
-            }
-          }
-
-          val overdueTasks = result.updatedTasks.filter(task =>
-            task.status == TaskStatus.OVERDUE
-          )
-
-          if (overdueTasks.nonEmpty) {
-            log(config.logFile, "Обнаружено просроченных дел: " + overdueTasks.length)
-            println("\nПросроченные задачи:\n")
-
-            for (task <- overdueTasks) {
-              printTask(task)
-            }
-          }
-
-          println("Оставшееся свободное время после составления расписания:")
-
-          if (remainingFreeTimeSlots.isEmpty) {
-            println("Свободного времени не осталось.\n")
-          } else {
-            printFreeTimeSlots(remainingFreeTimeSlots)
-          }
-
-          tasks = result.updatedTasks
+          buildScheduleAction()
         case 10 =>
-          printSchedule(schedule)
+          showScheduleAction()
         case 11 =>
           config = loadConfig("config.json", config)
           log(config.logFile, "Выполнена попытка перезагрузки конфигурации")
