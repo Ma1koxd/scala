@@ -9,6 +9,7 @@ import service.Scheduler.scheduleAllTasks
 import service.TaskManager.{addTask, cancelTask, deleteTask, editTask}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
+import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
 import model.{AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
 object Main {
@@ -36,6 +37,104 @@ object Main {
 
     remainingFreeTimeSlots = freeTimeSlots
 
+    val view = new ConsoleMenuView()
+    val controller = new MenuController(view)
+
+    def showTasksAction(): Unit = {
+      printTasks(tasks)
+    }
+
+    def addTaskAction(): Unit = {
+      val newTaskId = nextId
+      val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
+
+      tasks = updatedTasks
+      nextId = updatedNextId
+
+      log(config.logFile, "Добавлено дело ID: " + newTaskId)
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    def editTaskAction(): Unit = {
+      val oldTasks = tasks
+      tasks = editTask(tasks)
+      val completedHoursChanged = oldTasks.exists(oldTask =>
+        tasks.find(task => task.id == oldTask.id) match {
+          case Some(updatedTask) =>
+            updatedTask.completedHours != oldTask.completedHours
+          case None =>
+            false
+        }
+      )
+
+      if (completedHoursChanged) {
+        log(config.logFile, "Изменено количество выполненных часов дела")
+      }
+
+      if (tasks != oldTasks) {
+        log(config.logFile, "Дело изменено")
+      }
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    def deleteTaskAction(): Unit = {
+      val oldTasks = tasks
+      tasks = deleteTask(tasks)
+
+      if (tasks != oldTasks) {
+        log(config.logFile, "Дело удалено")
+      }
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    def cancelTaskAction(): Unit = {
+      val oldTasks = tasks
+      tasks = cancelTask(tasks)
+
+      if (tasks != oldTasks) {
+        log(config.logFile, "Дело отменено")
+      }
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    // idea делает вещи, чтоб не запутаться, где че у тебя, кайфы чисто
+    // когда разберусь с менюшкой, удалю все вспомогательные вещи
+    // и будет компактный хороший кодик
+
+    val tasksMenu = MenuContainer(
+      name = "Работа с делами",
+      items = List(
+        MenuItem(
+          name = "Добавить дело",
+          action = () => addTaskAction()
+        ),
+        MenuItem(
+          name = "Показать дела",
+          action = () => showTasksAction()
+        ),
+        MenuItem(
+          name = "Изменить дело",
+          action = () => editTaskAction()
+        ),
+        MenuItem(
+          name = "Удалить дело",
+          action = () => deleteTaskAction()
+        ),
+        MenuItem(
+          name = "Отменить дело",
+          action = () => cancelTaskAction()
+        ),
+      )
+    )
+
     while (running){
       println("Меню:")
       println("1. Добавить дело")
@@ -56,58 +155,15 @@ object Main {
 
       choice match{
         case 1 =>
-          val newTaskId = nextId
-          val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
-
-          tasks = updatedTasks
-          nextId = updatedNextId
-          log(config.logFile, "Добавлено дело ID: " + newTaskId)
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          addTaskAction()
         case 2 =>
-          printTasks(tasks)
+          showTasksAction()
         case 3 =>
-          val oldTasks = tasks
-          tasks = editTask(tasks)
-          val completedHoursChanged = oldTasks.exists(oldTask =>
-            tasks.find(task => task.id == oldTask.id) match {
-              case Some(updatedTask) =>
-                updatedTask.completedHours != oldTask.completedHours
-              case None =>
-                false
-            }
-          )
-
-          if (completedHoursChanged) {
-            log(config.logFile, "Изменено количество выполненных часов дела")
-          }
-
-          if (tasks != oldTasks) {
-            log(config.logFile, "Дело изменено")
-          }
-
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          editTaskAction()
         case 4 =>
-          val oldTasks = tasks
-          tasks = deleteTask(tasks)
-
-          if (tasks != oldTasks) {
-            log(config.logFile, "Дело удалено")
-          }
-
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          deleteTaskAction()
         case 5 =>
-          val oldTasks = tasks
-          tasks = cancelTask(tasks)
-
-          if (tasks != oldTasks) {
-            log(config.logFile, "Дело отменено")
-          }
-
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          cancelTaskAction()
         case 6 =>
           val oldFreeTimeSlots = freeTimeSlots
           freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
