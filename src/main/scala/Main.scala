@@ -2,11 +2,12 @@ import io.AppLogger.log
 import io.ConfigManager.loadConfig
 import service.FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
 import console.FreeTimePrinter.printFreeTimeSlots
-import console.InputUtils.readDate
+import console.InputUtils.{readDate, readInt}
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
+import console.TaskErrorPrinter.printTaskError
 import service.Scheduler.scheduleAllTasks
-import service.TaskManager.{addTask, cancelTask, deleteTask, editTask}
+import service.TaskManager.{addTask, cancelTask, deleteTaskResult, editTask}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
@@ -83,11 +84,20 @@ object Main {
     }
 
     def deleteTaskAction(): Unit = {
-      val oldTasks = tasks
-      tasks = deleteTask(tasks)
+      if (tasks.isEmpty) {
+        println("Список дел пуст.\n")
+      } else {
+        println("Введите ID дела для удаления: ")
+        val id = readInt()
 
-      if (tasks != oldTasks) {
-        log(config.logFile, "Дело удалено")
+        deleteTaskResult(tasks, id) match {
+          case Right(updatedTasks) =>
+            tasks = updatedTasks
+            println("Дело успешно удалено.")
+            log(config.logFile, "Дело удалено")
+          case Left(error) =>
+            printTaskError(error)
+        }
       }
 
       schedule = List.empty[ScheduledBlock]

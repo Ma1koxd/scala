@@ -15,6 +15,8 @@ object TaskErrorPrinter {
         println("Ошибка: дедлайн не может быть раньше даты начала")
       case TaskError.INVALID_MIN_BLOCK_MINUTES =>
         println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
+      case TaskError.TASK_NOT_FOUND(_) =>
+        println("Дело с таким ID не найдено.")
     }
   }
 }

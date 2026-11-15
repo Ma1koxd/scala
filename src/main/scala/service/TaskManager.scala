@@ -5,7 +5,7 @@ import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPrior
 import console.TaskEditActionParser
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
-import model.{Task, TaskEditAction, TaskStatus}
+import model.{Task, TaskEditAction, TaskError, TaskStatus}
 import validation.TaskValidator.validateTaskResult
 
 import scala.io.StdIn.readLine
@@ -409,27 +409,15 @@ object TaskManager {
     updatedTasks
   }
 
-  def deleteTask(tasks: List[Task]): List[Task] = {
-    var updatedTasks = tasks
-
-    if (updatedTasks.isEmpty) {
-      println("Список дел пуст.\n")
-    } else {
-      println("Введите ID дела для удаления: ")
-      val id = readInt()
-
-      val oldSize = updatedTasks.length
-
-      updatedTasks = updatedTasks.filter(task => task.id != id)
-
-      if (updatedTasks.length < oldSize) {
-        println("Дело успешно удалено.")
-      } else {
-        println("Дело с таким ID не найдено.")
-      }
-    }
-
-    updatedTasks
+  // функция проверяет есть ли такая-то задача, tasks.find() - это у нас Option
+  // поэтому получив результат Option мы отправляем его в Either, а точнее в Right если прошло
+  // проверку, потому что здесь находится наш результат, иначе оно отправляется в Left
+  // после чего с помощью map мы создаем список без дела с найденным ID, если поиск
+  // завершился ошибкой, то map не выполнится
+  def deleteTaskResult(tasks: List[Task], id: Int): Either[TaskError, List[Task]] = {
+    tasks.find(task => task.id == id)
+      .toRight(TaskError.TASK_NOT_FOUND(id))
+      .map(foundTask => tasks.filter(task => task.id != foundTask.id))
   }
 
   def cancelTask(tasks: List[Task]): List[Task] = {
