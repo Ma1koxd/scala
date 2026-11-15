@@ -21,6 +21,8 @@ object TaskErrorPrinter {
         println("Нельзя отменить уже завершенное дело.")
       case TaskError.TASK_ALREADY_CANCELLED(_) =>
         println("Дело уже отменено.")
+      case TaskError.TASK_NOT_SPLITTABLE(_) =>
+        println("Дело нельзя разделять на блоки.")
     }
   }
 }

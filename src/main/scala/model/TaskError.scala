@@ -9,4 +9,5 @@ enum TaskError {
   case TASK_NOT_FOUND(id: Int)
   case CANNOT_CANCEL_COMPLETED_TASK(id: Int)
   case TASK_ALREADY_CANCELLED(id: Int)
+  case TASK_NOT_SPLITTABLE(id: Int)
 }

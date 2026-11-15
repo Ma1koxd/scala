@@ -135,6 +135,20 @@ object TaskManager {
     validateTaskResult(updatedTask)
   }
 
+  def changeMinBlockMinutesResult(task: Task, newMinBlockMinutes: Int): Either[TaskError, Task] = {
+    if (!task.canSplit) {
+      Left(TaskError.TASK_NOT_SPLITTABLE(task.id))
+    } else {
+      val newStatus = getStatusAfterPlanningEdit(task)
+      val updatedTask = task.copy(
+        minBlockMinutes = newMinBlockMinutes,
+        status = newStatus
+      )
+
+      validateTaskResult(updatedTask)
+    }
+  }
+
   def editTask(tasks: List[Task]): List[Task] = {
     var updatedTasks = tasks
 
@@ -333,13 +347,7 @@ object TaskManager {
                     newMinBlockMinutes = readInt()
                   }
 
-                  val newStatus = getStatusAfterPlanningEdit(currentTask)
-                  val updatedTask = currentTask.copy(
-                    minBlockMinutes = newMinBlockMinutes,
-                    status = newStatus
-                  )
-
-                  validateTaskResult(updatedTask) match {
+                  changeMinBlockMinutesResult(currentTask, newMinBlockMinutes) match {
                     case Right(validTask) =>
                       updatedTasks = replaceTask(updatedTasks, validTask)
                       currentTask = validTask
@@ -351,7 +359,7 @@ object TaskManager {
                       printTaskError(error)
                   }
                 } else {
-                  println("Дело нельзя разделять на блоки.")
+                  printTaskError(TaskError.TASK_NOT_SPLITTABLE(currentTask.id))
                 }
               case Right(TaskEditAction.FINISH_EDITING) =>
                 println("Изменение завершено.")
