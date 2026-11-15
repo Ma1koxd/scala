@@ -109,6 +109,32 @@ object TaskManager {
     )
   }
 
+  def enableSplittingResult(task: Task, minBlockMinutes: Int): Either[TaskError, Task] = {
+    val newStatus = getStatusAfterPlanningEdit(task)
+
+    val updatedTask = task.copy(
+      canSplit = true,
+      minBlockMinutes = minBlockMinutes,
+      status = newStatus
+    )
+
+    validateTaskResult(updatedTask)
+  }
+
+  def disableSplittingResult(task: Task): Either[TaskError, Task] = {
+    val newStatus = getStatusAfterPlanningEdit(task)
+    val newMinBlockMinutes =
+      ((task.totalHours - task.completedHours) * 60).toInt
+
+    val updatedTask = task.copy(
+      canSplit = false,
+      minBlockMinutes = newMinBlockMinutes,
+      status = newStatus
+    )
+
+    validateTaskResult(updatedTask)
+  }
+
   def editTask(tasks: List[Task]): List[Task] = {
     var updatedTasks = tasks
 
@@ -269,7 +295,7 @@ object TaskManager {
                   "2) Нет")
                 val newCanSplit = readBoolean()
 
-                val newMinBlockMinutes =
+                val splittingResult =
                   if (newCanSplit) {
                     println("Введите минимальную продолжительность блока в минутах: ")
                     var minutes = readInt()
@@ -279,19 +305,13 @@ object TaskManager {
                       println("Введите минимальную продолжительность блока в минутах: ")
                       minutes = readInt()
                     }
-                    minutes
+
+                    enableSplittingResult(currentTask, minutes)
                   } else {
-                    ((currentTask.totalHours - currentTask.completedHours) * 60).toInt
+                    disableSplittingResult(currentTask)
                   }
 
-                val newStatus = getStatusAfterPlanningEdit(currentTask)
-                val updatedTask = currentTask.copy(
-                  canSplit = newCanSplit,
-                  minBlockMinutes = newMinBlockMinutes,
-                  status = newStatus
-                )
-
-                validateTaskResult(updatedTask) match {
+                splittingResult match {
                   case Right(validTask) =>
                     updatedTasks = replaceTask(updatedTasks, validTask)
                     currentTask = validTask
