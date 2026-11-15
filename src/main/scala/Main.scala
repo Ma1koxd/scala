@@ -2,9 +2,9 @@ import console.FreeTimeErrorPrinter.printFreeTimeError
 import console.FreeTimeInput.readFreeTimeSlot
 import io.AppLogger.log
 import io.ConfigManager.loadConfig
-import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlot}
+import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
-import console.InputUtils.{readDate, readInt}
+import console.InputUtils.{readDate, readInt, readTime}
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
 import console.TaskErrorPrinter.printTaskError
@@ -156,11 +156,23 @@ object Main {
     }
 
     def deleteFreeTimeAction(): Unit = {
-      val oldFreeTimeSlots = freeTimeSlots
-      freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
+      if (freeTimeSlots.isEmpty) {
+        println("Свободное время не задано.")
+      } else {
+        println("Введите дату свободного времени для удаления (ГГГГ-ММ-ДД): ")
+        val date = readDate()
 
-      if (freeTimeSlots != oldFreeTimeSlots) {
-        log(config.logFile, "Удалён интервал свободного времени")
+        println("Введите время начала удаляемого промежутка (ЧЧ:ММ): ")
+        val startTime = readTime()
+
+        deleteFreeTimeSlotResult(freeTimeSlots, date, startTime) match {
+          case Right(updatedFreeTimeSlots) =>
+            freeTimeSlots = updatedFreeTimeSlots
+            println("Свободное время успешно удалено.")
+            log(config.logFile, "Удалён интервал свободного времени")
+          case Left(error) =>
+            printFreeTimeError(error)
+        }
       }
 
       schedule = List.empty[ScheduledBlock]

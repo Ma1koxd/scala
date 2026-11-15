@@ -1,8 +1,9 @@
 package service
 
-import console.InputUtils.{readDate, readTime}
 import model.{FreeTimeError, FreeTimeSlot}
 import validation.FreeTimeValidator.{validateFreeTimeSlotResult, validateNoOverlap}
+
+import java.time.{LocalDate, LocalTime}
 
 object FreeTimeManager {
   // проверяем границы времени -> если все хорошо передаем интервал времени
@@ -17,29 +18,21 @@ object FreeTimeManager {
       .map(validSlot => freeTimeSlots :+ validSlot)
   }
 
-  def deleteFreeTimeSlot(freeTimeSlots: List[FreeTimeSlot]): List[FreeTimeSlot] = {
-    if (freeTimeSlots.isEmpty){
-      println("Свободное время не задано.")
-      freeTimeSlots
-    } else {
-      println("Введите дату свободного времени для удаления (ГГГГ-ММ-ДД): ")
-      val date = readDate()
-
-      println("Введите время начала удаляемого промежутка (ЧЧ:ММ): ")
-      val startTime = readTime()
-
-      val oldSize = freeTimeSlots.length
-
-      val updatedFreeTimeSlots = freeTimeSlots.filter(slot => !(slot.date ==
-        date && slot.startTime == startTime))
-
-      if (updatedFreeTimeSlots.length < oldSize){
-        println("Свободное время успешно удалено.")
-      } else {
-        println("Такой промежуток свободного времени не найден.")
-      }
-
-      updatedFreeTimeSlots
-    }
+  // freeTimeSlots.find() возвращает Option, который имеет 2 варианта Some() и None. toRight
+  // превращает найденный интервал Some() в Right(), а None - в Left() c ошибкой SLOT_NOT_FOUND
+  // после чего map при успешной проверке создает список без интервалов с найденной
+  // датой и временем начала
+  def deleteFreeTimeSlotResult(
+                                freeTimeSlots: List[FreeTimeSlot],
+                                date: LocalDate,
+                                startTime: LocalTime
+                              ): Either[FreeTimeError, List[FreeTimeSlot]] = {
+    freeTimeSlots.find(slot => slot.date == date && slot.startTime == startTime)
+      .toRight(FreeTimeError.SLOT_NOT_FOUND(date, startTime))
+      .map(foundSlot =>
+        freeTimeSlots.filter(slot =>
+          !(slot.date == foundSlot.date && slot.startTime == foundSlot.startTime)
+        )
+      )
   }
 }

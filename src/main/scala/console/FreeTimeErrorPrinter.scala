@@ -9,6 +9,8 @@ object FreeTimeErrorPrinter {
         println("Ошибка: время окончания должно быть позже времени начала.")
       case FreeTimeError.OVERLAPPING_SLOT =>
         println("Ошибка: свободное время пересекается с уже существующим промежутком.")
+      case FreeTimeError.SLOT_NOT_FOUND(_, _) =>
+        println("Такой промежуток свободного времени не найден.")
     }
   }
 }
