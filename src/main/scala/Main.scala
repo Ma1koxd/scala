@@ -194,6 +194,52 @@ object Main {
       printSchedule(schedule)
     }
 
+    // работа с конфигурацией
+
+    def reloadConfigAction(): Unit = {
+      config = loadConfig("config.json", config)
+      log(config.logFile, "Выполнена попытка перезагрузки конфигурации")
+    }
+
+    // работа с отчетом
+
+    def createReportAction(): Unit = {
+      val report = buildReport(
+        tasks,
+        schedule,
+        remainingFreeTimeSlots
+      )
+
+      val reportSaved =
+        saveReport(config.reportDirectory, report)
+
+      if (reportSaved) {
+        log(config.logFile, "Создан текстовый отчёт")
+      } else {
+        log(config.logFile, "Ошибка при создании текстового отчёта")
+      }
+    }
+
+    // выход из проги
+
+    def exitAction(): Unit = {
+      val state = AppState(
+        tasks,
+        freeTimeSlots,
+        nextId
+      )
+      val stateSaved =
+        saveState(state, config.stateFile)
+
+      if (stateSaved) {
+        log(config.logFile, "Состояние программы сохранено")
+      } else {
+        log(config.logFile, "Ошибка при сохранении состояния программы")
+      }
+
+      log(config.logFile, "Программа завершена")
+    }
+
     // idea делает вещи, чтоб не запутаться, где че у тебя, кайфы чисто
     // когда разберусь с менюшкой, удалю все вспомогательные вещи
     // и будет компактный хороший кодик
@@ -296,39 +342,11 @@ object Main {
         case 10 =>
           showScheduleAction()
         case 11 =>
-          config = loadConfig("config.json", config)
-          log(config.logFile, "Выполнена попытка перезагрузки конфигурации")
+          reloadConfigAction()
         case 12 =>
-          val report = buildReport(
-            tasks,
-            schedule,
-            remainingFreeTimeSlots
-          )
-
-          val reportSaved =
-            saveReport(config.reportDirectory, report)
-
-          if (reportSaved) {
-            log(config.logFile, "Создан текстовый отчёт")
-          } else {
-            log(config.logFile, "Ошибка при создании текстового отчёта")
-          }
+          createReportAction()
         case 0 =>
-          val state = AppState(
-            tasks,
-            freeTimeSlots,
-            nextId
-          )
-          val stateSaved =
-            saveState(state, config.stateFile)
-
-          if (stateSaved) {
-            log(config.logFile, "Состояние программы сохранено")
-          } else {
-            log(config.logFile, "Ошибка при сохранении состояния программы")
-          }
-
-          log(config.logFile, "Программа завершена")
+          exitAction()
           running = false
         case _ => println("Ошибка: выберите пункт от 0 до 12.")
       }
