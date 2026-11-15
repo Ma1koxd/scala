@@ -1,28 +1,10 @@
 package service
 
-import console.FreeTimeErrorPrinter.printFreeTimeError
 import console.InputUtils.{readDate, readTime}
 import model.{FreeTimeError, FreeTimeSlot}
 import validation.FreeTimeValidator.{validateFreeTimeSlotResult, validateNoOverlap}
 
 object FreeTimeManager {
-  def createFreeTimeSlot(): FreeTimeSlot = {
-    println("Введите дату свободного времени (ГГГГ-ММ-ДД):")
-    val date = readDate()
-
-    println("Введите время начала (ЧЧ:ММ):")
-    val startTime = readTime()
-
-    println("Введите время окончания (ЧЧ:ММ):")
-    val endTime = readTime()
-
-    FreeTimeSlot(
-      date,
-      startTime,
-      endTime
-    )
-  }
-
   // проверяем границы времени -> если все хорошо передаем интервал времени
   // в validateNoOverlap, который проверяет пересечения, если проверка провалилась, то дальше
   // передается ошибка. после 2 успешных проверок создается новый список свободного времени
@@ -33,19 +15,6 @@ object FreeTimeManager {
     validateFreeTimeSlotResult(slot)
       .flatMap(validSlot => validateNoOverlap(validSlot, freeTimeSlots))
       .map(validSlot => freeTimeSlots :+ validSlot)
-  }
-
-  def addFreeTimeSlot(freeTimeSlots: List[FreeTimeSlot]): List[FreeTimeSlot] = {
-    val slot = createFreeTimeSlot()
-
-    addFreeTimeSlotResult(freeTimeSlots, slot) match {
-      case Right(updatedFreeTimeSlots) =>
-        println("Свободное время добавлено успешно.")
-        updatedFreeTimeSlots
-      case Left(error) =>
-        printFreeTimeError(error)
-        freeTimeSlots
-    }
   }
 
   def deleteFreeTimeSlot(freeTimeSlots: List[FreeTimeSlot]): List[FreeTimeSlot] = {

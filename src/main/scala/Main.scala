@@ -1,6 +1,8 @@
+import console.FreeTimeErrorPrinter.printFreeTimeError
+import console.FreeTimeInput.readFreeTimeSlot
 import io.AppLogger.log
 import io.ConfigManager.loadConfig
-import service.FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
+import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlot}
 import console.FreeTimePrinter.printFreeTimeSlots
 import console.InputUtils.{readDate, readInt}
 import io.ReportManager.{buildReport, saveReport}
@@ -134,11 +136,15 @@ object Main {
     // раздел с действиями для свободного времени
 
     def addFreeTimeAction(): Unit = {
-      val oldFreeTimeSlots = freeTimeSlots
-      freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+      val slot = readFreeTimeSlot()
 
-      if (freeTimeSlots != oldFreeTimeSlots) {
-        log(config.logFile, "Добавлен интервал свободного времени")
+      addFreeTimeSlotResult(freeTimeSlots, slot) match {
+        case Right(updatedFreeTimeSlots) =>
+          freeTimeSlots = updatedFreeTimeSlots
+          println("Свободное время добавлено успешно.")
+          log(config.logFile, "Добавлен интервал свободного времени")
+        case Left(error) =>
+          printFreeTimeError(error)
       }
 
       schedule = List.empty[ScheduledBlock]
