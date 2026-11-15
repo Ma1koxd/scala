@@ -27,6 +27,30 @@ object TaskManager {
     )
   }
 
+  def changeTotalHoursResult(task: Task, newTotalHours: Double): Either[TaskError, Task] = {
+    val newStatus =
+      if (task.status == TaskStatus.CANCELLED) {
+        TaskStatus.CANCELLED
+      } else {
+        Task.getInitialStatus(newTotalHours, task.completedHours)
+      }
+
+    val newMinBlockMinutes =
+      if (task.canSplit) {
+        task.minBlockMinutes
+      } else {
+        ((newTotalHours - task.completedHours) * 60).toInt
+      }
+
+    val updatedTask = task.copy(
+      totalHours = newTotalHours,
+      minBlockMinutes = newMinBlockMinutes,
+      status = newStatus
+    )
+
+    validateTaskResult(updatedTask)
+  }
+
   def editTask(tasks: List[Task]): List[Task] = {
     var updatedTasks = tasks
 
@@ -81,28 +105,8 @@ object TaskManager {
                   println("Введите новую трудоёмкость в часах: ")
                   newTotalHours = readDouble()
                 }
-
-                val newStatus =
-                  if (currentTask.status == TaskStatus.CANCELLED) {
-                    TaskStatus.CANCELLED
-                  } else {
-                    Task.getInitialStatus(newTotalHours, currentTask.completedHours)
-                  }
-
-                val newMinBlockMinutes =
-                  if (currentTask.canSplit) {
-                    currentTask.minBlockMinutes
-                  } else {
-                    ((newTotalHours - currentTask.completedHours) * 60).toInt
-                  }
-
-                val updatedTask = currentTask.copy(
-                  totalHours = newTotalHours,
-                  minBlockMinutes = newMinBlockMinutes,
-                  status = newStatus
-                )
-
-                validateTaskResult(updatedTask) match {
+                
+                changeTotalHoursResult(currentTask, newTotalHours) match {
                   // опять же проверка на валидность, если все круто, все происходит как было
                   // изначально в лр0, далее заменим все исходные однотипные проверки на это
                   case Right(validTask) =>
