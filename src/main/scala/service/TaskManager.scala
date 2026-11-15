@@ -4,7 +4,7 @@ import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPrior
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskStatus}
-import validation.TaskValidator.{validateTask, validateTaskResult}
+import validation.TaskValidator.validateTaskResult
 
 import scala.io.StdIn.readLine
 
@@ -188,13 +188,19 @@ object TaskManager {
                   status = newStatus
                 )
 
-                if (validateTask(updatedTask)) {
-                  updatedTasks = replaceTask(updatedTasks, updatedTask)
-                  currentTask = updatedTask
+                validateTaskResult(updatedTask) match {
+                  // опять же проверка на валидность, если все круто, все происходит как было
+                  // изначально в лр0, далее заменим все исходные однотипные проверки на это
+                  case Right(validTask) =>
+                    updatedTasks = replaceTask(updatedTasks, validTask)
+                    currentTask = validTask
 
-                  println("Трудоёмкость изменена успешно.")
-                  println("Измененное дело: ")
-                  printTask(updatedTask)
+                    println("Трудоёмкость изменена успешно.")
+                    println("Измененное дело: ")
+                    printTask(validTask)
+                  // если проверка провалилась, то пользователю выводится причина ошибки
+                  case Left(error) =>
+                    printTaskError(error)
                 }
               case 3 =>
                 println("Введите количество выполненных часов: ")
@@ -231,13 +237,16 @@ object TaskManager {
                   status = newStatus
                 )
 
-                if (validateTask(updatedTask)) {
-                  updatedTasks = replaceTask(updatedTasks, updatedTask)
-                  currentTask = updatedTask
+                validateTaskResult(updatedTask) match {
+                  case Right(validTask) =>
+                    updatedTasks = replaceTask(updatedTasks, validTask)
+                    currentTask = validTask
 
-                  println("Выполненные часы изменены успешно.")
-                  println("Измененное дело: ")
-                  printTask(updatedTask)
+                    println("Выполненные часы изменены успешно.")
+                    println("Измененное дело: ")
+                    printTask(validTask)
+                  case Left(error) =>
+                    printTaskError(error)
                 }
               case 4 =>
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
@@ -256,13 +265,16 @@ object TaskManager {
                   status = newStatus
                 )
 
-                if (validateTask(updatedTask)) {
-                  updatedTasks = replaceTask(updatedTasks, updatedTask)
-                  currentTask = updatedTask
+                validateTaskResult(updatedTask) match {
+                  case Right(validTask) =>
+                    updatedTasks = replaceTask(updatedTasks, validTask)
+                    currentTask = validTask
 
-                  println("Дата начала изменена успешно.")
-                  println("Измененное дело: ")
-                  printTask(updatedTask)
+                    println("Дата начала изменена успешно.")
+                    println("Измененное дело: ")
+                    printTask(validTask)
+                  case Left(error) =>
+                    printTaskError(error)
                 }
               case 5 =>
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
@@ -281,13 +293,16 @@ object TaskManager {
                   status = newStatus
                 )
 
-                if (validateTask(updatedTask)) {
-                  updatedTasks = replaceTask(updatedTasks, updatedTask)
-                  currentTask = updatedTask
+                validateTaskResult(updatedTask) match {
+                  case Right(validTask) =>
+                    updatedTasks = replaceTask(updatedTasks, validTask)
+                    currentTask = validTask
 
-                  println("Дедлайн изменен успешно.")
-                  println("Измененное дело: ")
-                  printTask(updatedTask)
+                    println("Дедлайн изменен успешно.")
+                    println("Измененное дело: ")
+                    printTask(validTask)
+                  case Left(error) =>
+                    printTaskError(error)
                 }
               case 6 =>
                 println("Выберите новый приоритет:\n" +
@@ -335,13 +350,16 @@ object TaskManager {
                   status = newStatus
                 )
 
-                if (validateTask(updatedTask)) {
-                  updatedTasks = replaceTask(updatedTasks, updatedTask)
-                  currentTask = updatedTask
+                validateTaskResult(updatedTask) match {
+                  case Right(validTask) =>
+                    updatedTasks = replaceTask(updatedTasks, validTask)
+                    currentTask = validTask
 
-                  println("Возможность разделения на блоки изменена успешно.")
-                  println("Измененное дело: ")
-                  printTask(updatedTask)
+                    println("Возможность разделения на блоки изменена успешно.")
+                    println("Измененное дело: ")
+                    printTask(validTask)
+                  case Left(error) =>
+                    printTaskError(error)
                 }
               case 8 =>
                 if (currentTask.canSplit) {
@@ -360,13 +378,16 @@ object TaskManager {
                     status = newStatus
                   )
 
-                  if (validateTask(updatedTask)) {
-                    updatedTasks = replaceTask(updatedTasks, updatedTask)
-                    currentTask = updatedTask
+                  validateTaskResult(updatedTask) match {
+                    case Right(validTask) =>
+                      updatedTasks = replaceTask(updatedTasks, validTask)
+                      currentTask = validTask
 
-                    println("Минимальная продолжительность блока изменена успешно.")
-                    println("Измененное дело: ")
-                    printTask(updatedTask)
+                      println("Минимальная продолжительность блока изменена успешно.")
+                      println("Измененное дело: ")
+                      printTask(validTask)
+                    case Left(error) =>
+                      printTaskError(error)
                   }
                 } else {
                   println("Дело нельзя разделять на блоки.")
