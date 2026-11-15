@@ -8,6 +8,7 @@ import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError, TaskStatus}
 import validation.TaskValidator.{validateCancellation, validateTaskResult}
 
+import java.time.LocalDate
 import scala.io.StdIn.readLine
 
 object TaskManager {
@@ -69,6 +70,26 @@ object TaskManager {
     val updatedTask = task.copy(
       completedHours = newCompletedHours,
       minBlockMinutes = newMinBlockMinutes,
+      status = newStatus
+    )
+
+    validateTaskResult(updatedTask)
+  }
+
+  def changeStartDateResult(task: Task, newStartDate: LocalDate): Either[TaskError, Task] = {
+    val newStatus = getStatusAfterEdit(task)
+    val updatedTask = task.copy(
+      startDate = newStartDate,
+      status = newStatus
+    )
+
+    validateTaskResult(updatedTask)
+  }
+
+  def changeDeadlineResult(task: Task, newDeadline: LocalDate): Either[TaskError, Task] = {
+    val newStatus = getStatusAfterEdit(task)
+    val updatedTask = task.copy(
+      deadline = newDeadline,
       status = newStatus
     )
 
@@ -180,14 +201,7 @@ object TaskManager {
                   newStartDate = readDate()
                 }
 
-                val newStatus = getStatusAfterEdit(currentTask)
-
-                val updatedTask = currentTask.copy(
-                  startDate = newStartDate,
-                  status = newStatus
-                )
-
-                validateTaskResult(updatedTask) match {
+                changeStartDateResult(currentTask, newStartDate) match {
                   case Right(validTask) =>
                     updatedTasks = replaceTask(updatedTasks, validTask)
                     currentTask = validTask
@@ -208,14 +222,7 @@ object TaskManager {
                   newDeadline = readDate()
                 }
 
-                val newStatus = getStatusAfterEdit(currentTask)
-
-                val updatedTask = currentTask.copy(
-                  deadline = newDeadline,
-                  status = newStatus
-                )
-
-                validateTaskResult(updatedTask) match {
+                changeDeadlineResult(currentTask, newDeadline) match {
                   case Right(validTask) =>
                     updatedTasks = replaceTask(updatedTasks, validTask)
                     currentTask = validTask
