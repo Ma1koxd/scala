@@ -7,10 +7,11 @@ import console.FreeTimePrinter.printFreeTimeSlots
 import console.InputUtils.{readDate, readInt, readTime}
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
+import console.TaskEditor.editTask
 import console.TaskErrorPrinter.printTaskError
 import console.TaskInput.readTask
 import service.Scheduler.scheduleAllTasks
-import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult, editTask}
+import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
