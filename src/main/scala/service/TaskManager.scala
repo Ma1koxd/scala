@@ -1,9 +1,10 @@
 package service
 
 import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
+import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskStatus}
-import validation.TaskValidator.validateTask
+import validation.TaskValidator.{validateTask, validateTaskResult}
 
 import scala.io.StdIn.readLine
 
@@ -85,12 +86,19 @@ object TaskManager {
     println("Добавление дела")
     val task = createTask(nextId)
 
-    if (validateTask(task)) {
-      val updatedTasks = tasks :+ task
-      println("Дело успешно добавлено.")
-      (updatedTasks, nextId + 1)
-    } else {
-      (tasks, nextId)
+    validateTaskResult(task) match {
+      // насколько я понял смысл данной конструкции в ADT и Either, в том, что если проверка
+      // вернула успешный результат, то у нас validTask получает дело, которое внутри Right
+      case Right(validTask) =>
+        val updatedTasks = tasks :+ validTask
+        println("Дело успешно добавлено.")
+        (updatedTasks, nextId + 1)
+      // здесь же у нас неудачная проверка и мы получаем вместо дела,
+      // причину ошибки и ее расшифрование, отображаемое пользователю, с помощью
+      // функции printTaskError
+      case Left(error) =>
+        printTaskError(error)
+        (tasks, nextId)
     }
   }
 
