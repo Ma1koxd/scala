@@ -34,10 +34,7 @@ class MenuController(view: MenuView) {
     var running = true
 
     while (running) {
-      view.showMenu(
-        currentMenu,
-        canGoBack = previousMenus.nonEmpty
-      )
+      view.showMenu(currentMenu, previousMenus.nonEmpty)
 
       view.readChoice() match {
         case Some(0) =>

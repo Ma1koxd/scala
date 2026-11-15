@@ -2,7 +2,7 @@ import io.AppLogger.log
 import io.ConfigManager.loadConfig
 import service.FreeTimeManager.{addFreeTimeSlot, deleteFreeTimeSlot}
 import console.FreeTimePrinter.printFreeTimeSlots
-import console.InputUtils.{readDate, readInt}
+import console.InputUtils.readDate
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
 import service.Scheduler.scheduleAllTasks
@@ -18,7 +18,6 @@ object Main {
     var freeTimeSlots = List.empty[FreeTimeSlot]
     var schedule = List.empty[ScheduledBlock]
     var remainingFreeTimeSlots = List.empty[FreeTimeSlot]
-    var running = true
     var nextId = 1
     var config = loadConfig("config.json")
 
@@ -240,116 +239,42 @@ object Main {
       log(config.logFile, "Программа завершена")
     }
 
-    // idea делает вещи, чтоб не запутаться, где че у тебя, кайфы чисто
-    // когда разберусь с менюшкой, удалю все вспомогательные вещи
-    // и будет компактный хороший кодик
-
     val tasksMenu = MenuContainer(
-      name = "Работа с делами",
-      items = List(
-        MenuItem(
-          name = "Добавить дело",
-          action = () => addTaskAction()
-        ),
-        MenuItem(
-          name = "Показать дела",
-          action = () => showTasksAction()
-        ),
-        MenuItem(
-          name = "Изменить дело",
-          action = () => editTaskAction()
-        ),
-        MenuItem(
-          name = "Удалить дело",
-          action = () => deleteTaskAction()
-        ),
-        MenuItem(
-          name = "Отменить дело",
-          action = () => cancelTaskAction()
-        ),
+      "Работа с делами", List(
+        MenuItem("Добавить дело", () => addTaskAction()),
+        MenuItem("Показать дела", () => showTasksAction()),
+        MenuItem("Изменить дело", () => editTaskAction()),
+        MenuItem("Удалить дело", () => deleteTaskAction()),
+        MenuItem("Отменить дело", () => cancelTaskAction())
       )
     )
 
     val freeTimeMenu = MenuContainer(
-      name = "Свободное время",
-      items = List(
-        MenuItem(
-          name = "Добавить свободное время",
-          action = () => addFreeTimeAction()
-        ),
-        MenuItem(
-          name = "Показать свободное время",
-          action = () => showFreeTimeAction()
-        ),
-        MenuItem(
-          name = "Удалить свободное время",
-          action = () => deleteFreeTimeAction()
-        )
+      "Свободное время", List(
+        MenuItem("Добавить свободное время", () => addFreeTimeAction()),
+        MenuItem("Показать свободное время", () => showFreeTimeAction()),
+        MenuItem("Удалить свободное время", () => deleteFreeTimeAction())
       )
     )
 
     val scheduleMenu = MenuContainer(
-      name = "Расписание",
-      items = List(
-        MenuItem(
-          name = "Составить расписание",
-          action = () => buildScheduleAction()
-        ),
-        MenuItem(
-          name = "Показать расписание",
-          action = () => showScheduleAction()
-        )
+      "Расписание", List(
+        MenuItem("Составить расписание", () => buildScheduleAction()),
+        MenuItem("Показать расписание", () => showScheduleAction())
       )
     )
 
-    while (running){
-      println("Меню:")
-      println("1. Добавить дело")
-      println("2. Показать дела")
-      println("3. Изменить дело")
-      println("4. Удалить дело")
-      println("5. Отменить дело")
-      println("6. Добавить свободное время")
-      println("7. Показать свободное время")
-      println("8. Удалить свободное время")
-      println("9. Составить расписание")
-      println("10. Показать расписание")
-      println("11. Перезагрузить конфигурацию")
-      println("12. Создать отчёт")
-      println("0. Выход")
+    val mainMenu = MenuContainer(
+      "Главное меню", List(
+        tasksMenu,
+        freeTimeMenu,
+        scheduleMenu,
+        MenuItem("Перезагрузить конфигурацию", () => reloadConfigAction()),
+        MenuItem("Создать отчёт", () => createReportAction())
+      )
+    )
 
-      val choice = readInt()
-
-      choice match{
-        case 1 =>
-          addTaskAction()
-        case 2 =>
-          showTasksAction()
-        case 3 =>
-          editTaskAction()
-        case 4 =>
-          deleteTaskAction()
-        case 5 =>
-          cancelTaskAction()
-        case 6 =>
-          addFreeTimeAction()
-        case 7 =>
-          showFreeTimeAction()
-        case 8 =>
-          deleteFreeTimeAction()
-        case 9 =>
-          buildScheduleAction()
-        case 10 =>
-          showScheduleAction()
-        case 11 =>
-          reloadConfigAction()
-        case 12 =>
-          createReportAction()
-        case 0 =>
-          exitAction()
-          running = false
-        case _ => println("Ошибка: выберите пункт от 0 до 12.")
-      }
-    }
+    controller.run(mainMenu)
+    exitAction()
   }
 }
