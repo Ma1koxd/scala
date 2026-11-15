@@ -5,7 +5,7 @@ import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPrior
 import console.TaskEditActionParser
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
-import model.{Task, TaskEditAction, TaskError, TaskStatus}
+import model.{Priority, Task, TaskEditAction, TaskError, TaskStatus}
 import validation.TaskValidator.{validateCancellation, validateTaskResult}
 
 import java.time.LocalDate
@@ -96,6 +96,19 @@ object TaskManager {
     validateTaskResult(updatedTask)
   }
 
+  def changeName(task: Task, newName: String): Task = {
+    task.copy(name = newName)
+  }
+
+  def changePriority(task: Task, newPriority: Priority): Task = {
+    val newStatus = getStatusAfterPlanningEdit(task)
+
+    task.copy(
+      priority = newPriority,
+      status = newStatus
+    )
+  }
+
   def editTask(tasks: List[Task]): List[Task] = {
     var updatedTasks = tasks
 
@@ -129,7 +142,7 @@ object TaskManager {
               case Right(TaskEditAction.CHANGE_NAME) =>
                 println("Введите новое название: ")
                 val newName = readLine()
-                val updatedTask = currentTask.copy(name = newName)
+                val updatedTask = changeName(currentTask, newName)
 
                 updatedTasks = replaceTask(updatedTasks, updatedTask)
                 currentTask = updatedTask
@@ -242,8 +255,7 @@ object TaskManager {
 
                 val newPriority = readPriority()
 
-                val newStatus = getStatusAfterPlanningEdit(currentTask)
-                val updatedTask = currentTask.copy(priority = newPriority, status = newStatus)
+                val updatedTask = changePriority(currentTask, newPriority)
 
                 updatedTasks = replaceTask(updatedTasks, updatedTask)
                 currentTask = updatedTask
