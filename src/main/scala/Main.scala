@@ -40,10 +40,6 @@ object Main {
     val view = new ConsoleMenuView()
     val controller = new MenuController(view)
 
-    def showTasksAction(): Unit = {
-      printTasks(tasks)
-    }
-
     def addTaskAction(): Unit = {
       val newTaskId = nextId
       val (updatedTasks, updatedNextId) = addTask(tasks, nextId)
@@ -55,6 +51,10 @@ object Main {
 
       schedule = List.empty[ScheduledBlock]
       remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    def showTasksAction(): Unit = {
+      printTasks(tasks)
     }
 
     def editTaskAction(): Unit = {
@@ -105,6 +105,34 @@ object Main {
       remainingFreeTimeSlots = freeTimeSlots
     }
 
+    def addFreeTimeAction(): Unit = {
+      val oldFreeTimeSlots = freeTimeSlots
+      freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
+
+      if (freeTimeSlots != oldFreeTimeSlots) {
+        log(config.logFile, "Добавлен интервал свободного времени")
+      }
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
+    def showFreeTimeAction(): Unit = {
+      printFreeTimeSlots(remainingFreeTimeSlots)
+    }
+
+    def deleteFreeTimeAction(): Unit = {
+      val oldFreeTimeSlots = freeTimeSlots
+      freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
+
+      if (freeTimeSlots != oldFreeTimeSlots) {
+        log(config.logFile, "Удалён интервал свободного времени")
+      }
+
+      schedule = List.empty[ScheduledBlock]
+      remainingFreeTimeSlots = freeTimeSlots
+    }
+
     // idea делает вещи, чтоб не запутаться, где че у тебя, кайфы чисто
     // когда разберусь с менюшкой, удалю все вспомогательные вещи
     // и будет компактный хороший кодик
@@ -132,6 +160,24 @@ object Main {
           name = "Отменить дело",
           action = () => cancelTaskAction()
         ),
+      )
+    )
+
+    val freeTimeMenu = MenuContainer(
+      name = "Свободное время",
+      items = List(
+        MenuItem(
+          name = "Добавить свободное время",
+          action = () => addFreeTimeAction()
+        ),
+        MenuItem(
+          name = "Показать свободное время",
+          action = () => showFreeTimeAction()
+        ),
+        MenuItem(
+          name = "Удалить свободное время",
+          action = () => deleteFreeTimeAction()
+        )
       )
     )
 
@@ -165,27 +211,11 @@ object Main {
         case 5 =>
           cancelTaskAction()
         case 6 =>
-          val oldFreeTimeSlots = freeTimeSlots
-          freeTimeSlots = addFreeTimeSlot(freeTimeSlots)
-
-          if (freeTimeSlots != oldFreeTimeSlots) {
-            log(config.logFile, "Добавлен интервал свободного времени")
-          }
-
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          addFreeTimeAction()
         case 7 =>
-          printFreeTimeSlots(remainingFreeTimeSlots)
+          showFreeTimeAction()
         case 8 =>
-          val oldFreeTimeSlots = freeTimeSlots
-          freeTimeSlots = deleteFreeTimeSlot(freeTimeSlots)
-
-          if (freeTimeSlots != oldFreeTimeSlots) {
-            log(config.logFile, "Удалён интервал свободного времени")
-          }
-
-          schedule = List.empty[ScheduledBlock]
-          remainingFreeTimeSlots = freeTimeSlots
+          deleteFreeTimeAction()
         case 9 =>
           println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
           val currentDate = readDate()
