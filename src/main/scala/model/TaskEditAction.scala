@@ -1,0 +1,13 @@
+package model
+
+enum TaskEditAction {
+  case CHANGE_NAME
+  case CHANGE_TOTAL_HOURS
+  case CHANGE_COMPLETED_HOURS
+  case CHANGE_START_DATE
+  case CHANGE_DEADLINE
+  case CHANGE_PRIORITY
+  case CHANGE_CAN_SPLIT
+  case CHANGE_MIN_BLOCK_MINUTES
+  case FINISH_EDITING
+}

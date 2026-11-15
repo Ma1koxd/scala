@@ -1,9 +1,11 @@
 package service
 
+import console.InputErrorPrinter.printInputError
 import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
+import console.TaskEditActionParser
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
-import model.{Task, TaskStatus}
+import model.{Task, TaskEditAction, TaskStatus}
 import validation.TaskValidator.validateTaskResult
 
 import scala.io.StdIn.readLine
@@ -141,9 +143,9 @@ object TaskManager {
               "\t7) Возможность разделения на блоки\n" +
               "\t8) Минимальная продолжительность блока\n" +
               "\t0) Завершить изменение")
-            val editChoice = readInt()
-            editChoice match {
-              case 1 =>
+            val editActionResult = TaskEditActionParser.parse(readInt())
+            editActionResult match {
+              case Right(TaskEditAction.CHANGE_NAME) =>
                 println("Введите новое название: ")
                 val newName = readLine()
                 val updatedTask = currentTask.copy(name = newName)
@@ -154,7 +156,7 @@ object TaskManager {
                 println("Название изменено успешно.")
                 println("Измененное дело: ")
                 printTask(updatedTask)
-              case 2 =>
+              case Right(TaskEditAction.CHANGE_TOTAL_HOURS) =>
                 println("Введите новую трудоёмкость в часах: ")
                 var newTotalHours = readDouble()
 
@@ -202,7 +204,7 @@ object TaskManager {
                   case Left(error) =>
                     printTaskError(error)
                 }
-              case 3 =>
+              case Right(TaskEditAction.CHANGE_COMPLETED_HOURS) =>
                 println("Введите количество выполненных часов: ")
                 var newCompletedHours = readDouble()
 
@@ -248,7 +250,7 @@ object TaskManager {
                   case Left(error) =>
                     printTaskError(error)
                 }
-              case 4 =>
+              case Right(TaskEditAction.CHANGE_START_DATE) =>
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
                 var newStartDate = readDate()
 
@@ -276,7 +278,7 @@ object TaskManager {
                   case Left(error) =>
                     printTaskError(error)
                 }
-              case 5 =>
+              case Right(TaskEditAction.CHANGE_DEADLINE) =>
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
                 var newDeadline = readDate()
 
@@ -304,7 +306,7 @@ object TaskManager {
                   case Left(error) =>
                     printTaskError(error)
                 }
-              case 6 =>
+              case Right(TaskEditAction.CHANGE_PRIORITY) =>
                 println("Выберите новый приоритет:\n" +
                   "1) Низкий\n" +
                   "2) Средний\n" +
@@ -322,7 +324,7 @@ object TaskManager {
                 println("Приоритет изменен успешно.")
                 println("Измененное дело: ")
                 printTask(updatedTask)
-              case 7 =>
+              case Right(TaskEditAction.CHANGE_CAN_SPLIT) =>
                 println("Можно ли разделять дело на блоки?\n" +
                   "1) Да\n" +
                   "2) Нет")
@@ -361,7 +363,7 @@ object TaskManager {
                   case Left(error) =>
                     printTaskError(error)
                 }
-              case 8 =>
+              case Right(TaskEditAction.CHANGE_MIN_BLOCK_MINUTES) =>
                 if (currentTask.canSplit) {
                   println("Введите новую минимальную продолжительность блока в минутах: ")
                   var newMinBlockMinutes = readInt()
@@ -392,11 +394,11 @@ object TaskManager {
                 } else {
                   println("Дело нельзя разделять на блоки.")
                 }
-              case 0 =>
+              case Right(TaskEditAction.FINISH_EDITING) =>
                 println("Изменение завершено.")
                 editing = false
-              case _ =>
-                println("Ошибка: выберите пункт от 0 до 8.")
+              case Left(error) =>
+                printInputError(error)
             }
           }
         case None =>
