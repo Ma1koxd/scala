@@ -128,12 +128,9 @@ object Scheduler {
       scheduleSplitTask(task, freeTimeSlots)
     } else {
       val (blockOption, updatedFreeTimeSlots) = scheduleWholeTask(task, freeTimeSlots)
-      blockOption match {
-        case Some(block) =>
-          (Some(List(block)), updatedFreeTimeSlots)
-        case None =>
-          (None, updatedFreeTimeSlots)
-      }
+      // map преобразует Some(block) в Some(List(block)), а None остаётся None
+      // возвращаем полученный Option со списком блоков вместе с оставшимся свободным временем
+      (blockOption.map(block => List(block)), updatedFreeTimeSlots)
     }
   }
 

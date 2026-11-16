@@ -102,13 +102,12 @@ object Main {
     def editTaskAction(): Unit = {
       val oldTasks = tasks
       tasks = editTask(tasks, () => controller.stop())
+      // проверяем, изменились ли выполненные часы хотя бы у одного дела
+      // find возвращает Option, внутренний exists сравнивает часы найденного дела,
+      // а если дело не найдено, возвращает false
       val completedHoursChanged = oldTasks.exists(oldTask =>
-        tasks.find(task => task.id == oldTask.id) match {
-          case Some(updatedTask) =>
-            updatedTask.completedHours != oldTask.completedHours
-          case None =>
-            false
-        }
+        tasks.find(task => task.id == oldTask.id)
+          .exists(updatedTask => updatedTask.completedHours != oldTask.completedHours)
       )
 
       if (completedHoursChanged) {
