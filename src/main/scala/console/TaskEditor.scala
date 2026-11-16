@@ -1,13 +1,11 @@
 package console
 
 import console.InputErrorPrinter.printInputError
-import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readIntOption, readPriority}
+import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readIntOption, readLineOption, readPriorityOption}
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError}
 import service.TaskManager.{changeCompletedHoursResult, changeDeadlineResult, changeMinBlockMinutesResult, changeName, changePriority, changeStartDateResult, changeTotalHoursResult, disableSplittingResult, enableSplittingResult, replaceTask}
-
-import scala.io.StdIn.readLine
 
 object TaskEditor {
   def editTask(tasks: List[Task], onEndOfInput: () => Unit): List[Task] = {
@@ -54,7 +52,13 @@ object TaskEditor {
             editActionResult match {
               case Right(TaskEditAction.CHANGE_NAME) =>
                 println("Введите новое название: ")
-                val newName = readLine()
+                val newName = readLineOption() match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
+                }
                 val updatedTask = changeName(currentTask, newName)
 
                 updatedTasks = replaceTask(updatedTasks, updatedTask)
@@ -166,7 +170,13 @@ object TaskEditor {
                   "3) Высокий\n" +
                   "4) Наивысший")
 
-                val newPriority = readPriority()
+                val newPriority = readPriorityOption() match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
+                }
 
                 val updatedTask = changePriority(currentTask, newPriority)
 
