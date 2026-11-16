@@ -10,7 +10,13 @@ import scala.util.control.NonFatal // нужна, чтобы пропускат�
 object StateManager {
   def parseStateResult(text: String, fileName: String): Either[StorageError, AppState] = {
     try {
-      Right(read[AppState](text))
+      // Option превращает null от библиотеки uPickle в None
+      // toRight возвращает полученное состояние или ошибку формата для None
+      Option(read[AppState](text))
+        .toRight(StorageError.INVALID_STATE_FORMAT(
+          fileName,
+          "Ожидался объект состояния, получено null"
+        ))
     } catch {
       case NonFatal(exception) =>
         Left(StorageError.INVALID_STATE_FORMAT(fileName, exception.toString))

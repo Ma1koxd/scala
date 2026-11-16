@@ -18,7 +18,13 @@ object ConfigManager {
   // если разобрать содержимое не получилось, возвращаем ошибку формата
   def parseConfigResult(text: String, fileName: String): Either[StorageError, AppConfig] = {
     try {
-      Right(read[AppConfig](text))
+      // Option превращает null от библиотеки uPickle в None
+      // toRight возвращает полученную конфигурацию или ошибку формата для None
+      Option(read[AppConfig](text))
+        .toRight(StorageError.INVALID_CONFIG_FORMAT(
+          fileName,
+          "Ожидался объект конфигурации, получено null"
+        ))
     } catch {
       case NonFatal(exception) =>
         Left(StorageError.INVALID_CONFIG_FORMAT(fileName, exception.toString))
