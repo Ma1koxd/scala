@@ -10,7 +10,7 @@ import console.ScheduledBlockPrinter.printSchedule
 import console.StorageErrorPrinter.printStorageError
 import console.TaskEditor.editTask
 import console.TaskErrorPrinter.printTaskError
-import console.TaskInput.readTask
+import console.TaskInput.readTaskOption
 import service.Scheduler.scheduleAllTasks
 import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult}
 import console.TaskPrinter.{printTask, printTasks}
@@ -75,16 +75,20 @@ object Main {
 
     def addTaskAction(): Unit = {
       println("Добавление дела")
-      val task = readTask(nextId)
 
-      addTaskResult(tasks, task) match {
-        case Right(updatedTasks) =>
-          tasks = updatedTasks
-          nextId = nextId + 1
-          println("Дело успешно добавлено.")
-          log(config.logFile, "Добавлено дело ID: " + task.id)
-        case Left(error) =>
-          printTaskError(error)
+      readTaskOption(nextId) match {
+        case Some(task) =>
+          addTaskResult(tasks, task) match {
+            case Right(updatedTasks) =>
+              tasks = updatedTasks
+              nextId = nextId + 1
+              println("Дело успешно добавлено.")
+              log(config.logFile, "Добавлено дело ID: " + task.id)
+            case Left(error) =>
+              printTaskError(error)
+          }
+        case None =>
+          controller.stop()
       }
 
       schedule = List.empty[ScheduledBlock]
