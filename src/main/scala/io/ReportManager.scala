@@ -36,10 +36,13 @@ object ReportManager {
       report.append("Расписание отсутствует.\n")
     } else {
       for (block <- schedule) {
-        val taskName = tasks.find(task => task.id == block.taskId) match {
-          case Some(task) => task.name
-          case None => "Неизвестное дело"
-        }
+        // find возвращает Some(task), если дело найдено, или None
+        // map преобразует Some(task) в Some(task.name), а None остаётся None
+        // getOrElse возвращает полученное название,
+        // а если поиск вернул None -> текст "Неизвестное дело"
+        val taskName = tasks.find(task => task.id == block.taskId)
+          .map(task => task.name)
+          .getOrElse("Неизвестное дело")
 
         report.append("Дело: " + taskName + " (ID: " + block.taskId + ")\n")
         report.append("Дата: " + block.date + "\n")

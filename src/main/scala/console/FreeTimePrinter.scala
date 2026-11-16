@@ -26,11 +26,9 @@ object FreeTimePrinter {
   }
 
   def printTotalFreeTime(freeTimeSlots: List[FreeTimeSlot]): Unit = {
-    var totalMinutes = 0L
-
-    for (slot <- freeTimeSlots) {
-      totalMinutes += slot.durationMinutes
-    }
+    // map создаёт список продолжительностей интервалов в минутах
+    // sum складывает эти значения; для пустого списка результат - 0L
+    val totalMinutes = freeTimeSlots.map(slot => slot.durationMinutes).sum
 
     println("Общее свободное время: " + totalMinutes + " минут")
   }
