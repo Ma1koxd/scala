@@ -15,6 +15,10 @@ object InputErrorPrinter {
         println("Ошибка: введите дату в формате ГГГГ-ММ-ДД")
       case InputError.INVALID_TIME(_) =>
         println("Ошибка: введите время в формате ЧЧ:ММ")
+      case InputError.INVALID_PRIORITY_CHOICE(_) =>
+        println("Ошибка: введите число от 1 до 4.")
+      case InputError.INVALID_BOOLEAN_CHOICE(_) =>
+        println("Ошибка: введите число от 1 до 2")
     }
   }
 }

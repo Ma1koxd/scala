@@ -1,6 +1,6 @@
 package console
 
-import model.InputError
+import model.{InputError, Priority}
 
 import java.time.{LocalDate, LocalTime}
 import java.time.format.DateTimeParseException
@@ -30,5 +30,35 @@ object InputParser {
       case _: DateTimeParseException =>
         Left(InputError.INVALID_TIME(input))
     }
+  }
+
+  def parsePriority(input: String): Either[InputError, Priority] = {
+    parseInt(input).flatMap(choice =>
+      choice match {
+        case 1 =>
+          Right(Priority.LOW)
+        case 2 =>
+          Right(Priority.NORMAL)
+        case 3 =>
+          Right(Priority.HIGH)
+        case 4 =>
+          Right(Priority.CRITICAL)
+        case _ =>
+          Left(InputError.INVALID_PRIORITY_CHOICE(choice))
+      }
+    )
+  }
+
+  def parseBoolean(input: String): Either[InputError, Boolean] = {
+    parseInt(input).flatMap(choice =>
+      choice match {
+        case 1 =>
+          Right(true)
+        case 2 =>
+          Right(false)
+        case _ =>
+          Left(InputError.INVALID_BOOLEAN_CHOICE(choice))
+      }
+    )
   }
 }

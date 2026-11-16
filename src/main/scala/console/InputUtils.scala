@@ -174,4 +174,12 @@ object InputUtils {
   def readTimeOption(): Option[LocalTime] = {
     readParsedOption(InputParser.parseTime)
   }
+
+  def readPriorityOption(): Option[Priority] = {
+    readParsedOption(InputParser.parsePriority)
+  }
+
+  def readBooleanOption(): Option[Boolean] = {
+    readParsedOption(InputParser.parseBoolean)
+  }
 }

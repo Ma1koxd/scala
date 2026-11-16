@@ -8,4 +8,6 @@ enum InputError {
   case INVALID_DOUBLE(input: String)
   case INVALID_DATE(input: String)
   case INVALID_TIME(input: String)
+  case INVALID_PRIORITY_CHOICE(choice: Int)
+  case INVALID_BOOLEAN_CHOICE(choice: Int)
 }
