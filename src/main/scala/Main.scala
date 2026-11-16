@@ -7,13 +7,14 @@ import console.FreeTimePrinter.printFreeTimeSlots
 import console.InputUtils.{readDate, readInt, readTime}
 import io.ReportManager.{buildReport, saveReport}
 import console.ScheduledBlockPrinter.printSchedule
+import console.StorageErrorPrinter.printStorageError
 import console.TaskEditor.editTask
 import console.TaskErrorPrinter.printTaskError
 import console.TaskInput.readTask
 import service.Scheduler.scheduleAllTasks
 import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult}
 import console.TaskPrinter.{printTask, printTasks}
-import io.StateManager.{loadState, saveState}
+import io.StateManager.{loadStateResult, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
 import model.{AppAction, AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
@@ -29,13 +30,18 @@ object Main {
     log(config.logFile, "Программа запущена")
     log(config.logFile, "Конфигурация приложения применена")
 
-    loadState(config.stateFile) match {
-      case Some(state) =>
+    loadStateResult(config.stateFile) match {
+      case Right(Some(state)) =>
         tasks = state.tasks
         freeTimeSlots = state.freeTimeSlots
         nextId = state.nextId
+        println("Состояние успешно загружено.")
         log(config.logFile, "Состояние программы загружено")
-      case None =>
+      case Right(None) =>
+        println("Файл состояния не найден.")
+        log(config.logFile, "Состояние программы не загружено")
+      case Left(error) =>
+        printStorageError(error)
         log(config.logFile, "Состояние программы не загружено")
     }
 
