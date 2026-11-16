@@ -1,7 +1,7 @@
 import console.FreeTimeErrorPrinter.printFreeTimeError
 import console.FreeTimeInput.readFreeTimeSlot
 import io.AppLogger.log
-import io.ConfigManager.loadConfig
+import io.ConfigManager.{defaultConfig, loadConfigResult}
 import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
 import console.InputUtils.{readDate, readInt, readTime}
@@ -25,7 +25,18 @@ object Main {
     var schedule = List.empty[ScheduledBlock]
     var remainingFreeTimeSlots = List.empty[FreeTimeSlot]
     var nextId = 1
-    var config = loadConfig("config.json")
+    var config = defaultConfig
+
+    loadConfigResult("config.json") match {
+      case Right(Some(loadedConfig)) =>
+        config = loadedConfig
+        println("Конфигурация успешно загружена.")
+      case Right(None) =>
+        println("Файл конфигурации не найден. Сохраняются текущие настройки.")
+      case Left(error) =>
+        printStorageError(error)
+        println("Используются настройки по умолчанию.")
+    }
 
     log(config.logFile, "Программа запущена")
     log(config.logFile, "Конфигурация приложения применена")
@@ -246,7 +257,17 @@ object Main {
     // работа с конфигурацией
 
     def reloadConfigAction(): Unit = {
-      config = loadConfig("config.json", config)
+      loadConfigResult("config.json") match {
+        case Right(Some(loadedConfig)) =>
+          config = loadedConfig
+          println("Конфигурация успешно загружена.")
+        case Right(None) =>
+          println("Файл конфигурации не найден. Применяются настройки по умолчанию.")
+        case Left(error) =>
+          printStorageError(error)
+          println("Сохраняются текущие настройки.")
+      }
+
       log(config.logFile, "Выполнена попытка перезагрузки конфигурации")
     }
 

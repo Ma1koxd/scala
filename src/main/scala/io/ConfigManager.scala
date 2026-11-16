@@ -1,9 +1,11 @@
 package io
 
-import model.AppConfig
+import model.{AppConfig, StorageError}
 import upickle.default.read
 
-import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, NoSuchFileException, Path}
+import scala.util.control.NonFatal
 
 object ConfigManager {
   val defaultConfig: AppConfig = AppConfig(
@@ -12,23 +14,29 @@ object ConfigManager {
     reportDirectory = "reports"
   )
 
-  def loadConfig(fileName: String, fallbackConfig: AppConfig = defaultConfig): AppConfig = {
-    val file = new File(fileName)
+  // преобразуем содержимое файла в конфигурацию
+  // если разобрать содержимое не получилось, возвращаем ошибку формата
+  def parseConfigResult(text: String, fileName: String): Either[StorageError, AppConfig] = {
+    try {
+      Right(read[AppConfig](text))
+    } catch {
+      case NonFatal(exception) =>
+        Left(StorageError.INVALID_CONFIG_FORMAT(fileName, exception.toString))
+    }
+  }
 
-    if (!file.exists()) {
-      println("Файл конфигурации не найден. Используются настройки по умолчанию.")
-      fallbackConfig
-    } else {
-      try {
-        val config = read[AppConfig](file)
-        println("Конфигурация успешно загружена.")
-        config
-      } catch {
-        case exception: Exception =>
-          println("Ошибка при загрузке конфигурации: " + exception.getMessage)
-          println("Используется последняя/изначальная корректная конфигурация.")
-          fallbackConfig
-      }
+  // читаем конфиг, при отсутствии файла возвращаем Right(None)
+  // при успешной загрузке возвращаем Right(Some(config)), при ошибке - Left
+  def loadConfigResult(fileName: String): Either[StorageError, Option[AppConfig]] = {
+    try {
+      val text = Files.readString(Path.of(fileName), StandardCharsets.UTF_8)
+
+      parseConfigResult(text, fileName).map(config => Some(config))
+    } catch {
+      case _: NoSuchFileException =>
+        Right(None)
+      case NonFatal(exception) =>
+        Left(StorageError.FILE_READ_FAILED(fileName, exception.toString))
     }
   }
 }
