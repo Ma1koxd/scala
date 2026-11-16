@@ -1,7 +1,7 @@
 package console
 
 import console.InputErrorPrinter.printInputError
-import console.InputUtils.{readBoolean, readDateOption, readDoubleOption, readInt, readIntOption, readLineOption, readPriorityOption}
+import console.InputUtils.{readBooleanOption, readDateOption, readDoubleOption, readIntOption, readLineOption, readPriorityOption}
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError}
@@ -227,17 +227,31 @@ object TaskEditor {
                 println("Можно ли разделять дело на блоки?\n" +
                   "1) Да\n" +
                   "2) Нет")
-                val newCanSplit = readBoolean()
+                val newCanSplit = readBooleanOption() match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
+                }
 
                 val splittingResult =
                   if (newCanSplit) {
                     println("Введите минимальную продолжительность блока в минутах: ")
-                    var minutes = readInt()
+                    var minutesOption = readIntOption()
 
-                    while (minutes <= 0) {
+                    while (minutesOption.exists(value => value <= 0)) {
                       println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
                       println("Введите минимальную продолжительность блока в минутах: ")
-                      minutes = readInt()
+                      minutesOption = readIntOption()
+                    }
+
+                    val minutes = minutesOption match {
+                      case Some(value) =>
+                        value
+                      case None =>
+                        onEndOfInput()
+                        return updatedTasks
                     }
 
                     enableSplittingResult(currentTask, minutes)
@@ -259,12 +273,20 @@ object TaskEditor {
               case Right(TaskEditAction.CHANGE_MIN_BLOCK_MINUTES) =>
                 if (currentTask.canSplit) {
                   println("Введите новую минимальную продолжительность блока в минутах: ")
-                  var newMinBlockMinutes = readInt()
+                  var minBlockMinutesOption = readIntOption()
 
-                  while (newMinBlockMinutes <= 0) {
+                  while (minBlockMinutesOption.exists(value => value <= 0)) {
                     println("Ошибка: минимальная продолжительность блока должна быть больше нуля.")
                     println("Введите новую минимальную продолжительность блока в минутах: ")
-                    newMinBlockMinutes = readInt()
+                    minBlockMinutesOption = readIntOption()
+                  }
+
+                  val newMinBlockMinutes = minBlockMinutesOption match {
+                    case Some(value) =>
+                      value
+                    case None =>
+                      onEndOfInput()
+                      return updatedTasks
                   }
 
                   changeMinBlockMinutesResult(currentTask, newMinBlockMinutes) match {
