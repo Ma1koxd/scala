@@ -9,6 +9,8 @@ object InputErrorPrinter {
         println("Ошибка: выберите пункт от 0 до 8.")
       case InputError.INVALID_INTEGER(_) =>
         println("Ошибка: это не целое число")
+      case InputError.INVALID_DOUBLE(_) =>
+        println("Ошибка: введите корректное число. ")
     }
   }
 }

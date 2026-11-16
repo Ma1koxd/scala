@@ -125,22 +125,29 @@ object InputUtils {
     Option(readLine())
   }
 
-  // читаем одну строку и пытаемся получить целое число
-  // при завершении ввода возвращаем Right(None), при ошибке разбора — Left
-  def readIntResult(): Either[InputError, Option[Int]] = {
+  // читаем одну строку и разбираем её переданным парсером
+  def readParsedResult[A](parse: String => Either[InputError, A]): Either[InputError, Option[A]] = {
     readLineOption()
-      .map(input => InputParser.parseInt(input).map(number => Some(number)))
+      .map(input => parse(input).map(value => Some(value)))
       .getOrElse(Right(None))
   }
 
-  // повторяем ввод при ошибке разбора, возвращаем Some(number),
-  // когда число получено, или None, если ввод завершён
-  def readIntOption(): Option[Int] = {
-    var result = Option.empty[Int]
+  def readIntResult(): Either[InputError, Option[Int]] = {
+    readParsedResult(InputParser.parseInt)
+  }
+
+  def readDoubleResult(): Either[InputError, Option[Double]] = {
+    readParsedResult(InputParser.parseDouble)
+  }
+
+  // повторяем ввод при ошибке разбора
+  // возвращаем Some(value), когда значение получено, или None, если ввод завершён
+  def readParsedOption[A](parse: String => Either[InputError, A]): Option[A] = {
+    var result = Option.empty[A]
     var reading = true
 
     while (reading) {
-      readIntResult() match {
+      readParsedResult(parse) match {
         case Right(value) =>
           result = value
           reading = false
@@ -150,5 +157,13 @@ object InputUtils {
     }
 
     result
+  }
+
+  def readIntOption(): Option[Int] = {
+    readParsedOption(InputParser.parseInt)
+  }
+
+  def readDoubleOption(): Option[Double] = {
+    readParsedOption(InputParser.parseDouble)
   }
 }
