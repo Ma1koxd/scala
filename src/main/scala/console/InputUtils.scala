@@ -1,6 +1,6 @@
 package console
 
-import model.Priority
+import model.{InputError, Priority}
 
 import java.time.format.DateTimeParseException
 import java.time.{LocalDate, LocalTime}
@@ -117,5 +117,18 @@ object InputUtils {
       }
     }
     result
+  }
+
+  // читаем строку, при завершении ввода возвращаем None
+  def readLineOption(): Option[String] = {
+    Option(readLine())
+  }
+
+  // читаем одну строку и пытаемся получить целое число
+  // при завершении ввода возвращаем Right(None), при ошибке разбора — Left
+  def readIntResult(): Either[InputError, Option[Int]] = {
+    readLineOption()
+      .map(input => InputParser.parseInt(input).map(number => Some(number)))
+      .getOrElse(Right(None))
   }
 }

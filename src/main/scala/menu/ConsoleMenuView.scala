@@ -1,11 +1,14 @@
 package menu
 
+import console.InputUtils.readIntResult
+import model.InputError
+
 class ConsoleMenuView extends MenuView {
   override def showMenu(menu: MenuContainer, canGoBack: Boolean): Unit = {
     println("\n" + menu.name)
 
     for ((item, index) <- menu.items.zipWithIndex) {
-      println((index + 1) + ". " + item.name)
+      println((index + 1).toString + ". " + item.name)
     }
 
     if (canGoBack) {
@@ -15,9 +18,8 @@ class ConsoleMenuView extends MenuView {
     }
   }
 
-  override def readChoice(): Option[Int] = {
-    val input = scala.io.StdIn.readLine()
-    input.toIntOption
+  override def readChoice(): Either[InputError, Option[Int]] = {
+    readIntResult()
   }
 
   override def showInvalidChoice(): Unit = {

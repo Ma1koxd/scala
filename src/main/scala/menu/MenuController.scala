@@ -37,7 +37,7 @@ class MenuController(view: MenuView) {
       view.showMenu(currentMenu, previousMenus.nonEmpty)
 
       view.readChoice() match {
-        case Some(0) =>
+        case Right(Some(0)) =>
           previousMenus match {
             case previousMenu :: remainingMenus =>
               currentMenu = previousMenu
@@ -46,7 +46,7 @@ class MenuController(view: MenuView) {
             case Nil =>
               running = false
           }
-        case Some(choice) =>
+        case Right(Some(choice)) =>
           processChoice(currentMenu, choice) match {
             case MenuResult.Stay =>
             case MenuResult.Open(menu) =>
@@ -55,8 +55,10 @@ class MenuController(view: MenuView) {
             case MenuResult.Invalid =>
               view.showInvalidChoice()
           }
-        case None =>
+        case Left(_) =>
           view.showInvalidInput()
+        case Right(None) =>
+          running = false
       }
     }
   }
