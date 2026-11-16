@@ -1,5 +1,6 @@
 package console
 
+import console.InputErrorPrinter.printInputError
 import model.{InputError, Priority}
 
 import java.time.format.DateTimeParseException
@@ -130,5 +131,24 @@ object InputUtils {
     readLineOption()
       .map(input => InputParser.parseInt(input).map(number => Some(number)))
       .getOrElse(Right(None))
+  }
+
+  // повторяем ввод при ошибке разбора, возвращаем Some(number),
+  // когда число получено, или None, если ввод завершён
+  def readIntOption(): Option[Int] = {
+    var result = Option.empty[Int]
+    var reading = true
+
+    while (reading) {
+      readIntResult() match {
+        case Right(value) =>
+          result = value
+          reading = false
+        case Left(error) =>
+          printInputError(error)
+      }
+    }
+
+    result
   }
 }

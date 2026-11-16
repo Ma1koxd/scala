@@ -4,7 +4,7 @@ import io.AppLogger.logResult
 import io.ConfigManager.{defaultConfig, loadConfigResult}
 import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
-import console.InputUtils.{readDate, readInt, readTime}
+import console.InputUtils.{readDate, readIntOption, readTime}
 import io.ReportManager.{buildReport, saveReportResult}
 import console.ScheduledBlockPrinter.printSchedule
 import console.StorageErrorPrinter.printStorageError
@@ -124,15 +124,19 @@ object Main {
         println("Список дел пуст.\n")
       } else {
         println("Введите ID дела для удаления: ")
-        val id = readInt()
 
-        deleteTaskResult(tasks, id) match {
-          case Right(updatedTasks) =>
-            tasks = updatedTasks
-            println("Дело успешно удалено.")
-            log(config.logFile, "Дело удалено")
-          case Left(error) =>
-            printTaskError(error)
+        readIntOption() match {
+          case Some(id) =>
+            deleteTaskResult(tasks, id) match {
+              case Right(updatedTasks) =>
+                tasks = updatedTasks
+                println("Дело успешно удалено.")
+                log(config.logFile, "Дело удалено")
+              case Left(error) =>
+                printTaskError(error)
+            }
+          case None =>
+            controller.stop()
         }
       }
 
@@ -145,15 +149,19 @@ object Main {
         println("Список дел пуст.")
       } else {
         println("Введите ID дела для отмены:")
-        val id = readInt()
 
-        cancelTaskResult(tasks, id) match {
-          case Right(updatedTasks) =>
-            tasks = updatedTasks
-            println("Дело отменено.")
-            log(config.logFile, "Дело отменено")
-          case Left(error) =>
-            printTaskError(error)
+        readIntOption() match {
+          case Some(id) =>
+            cancelTaskResult(tasks, id) match {
+              case Right(updatedTasks) =>
+                tasks = updatedTasks
+                println("Дело отменено.")
+                log(config.logFile, "Дело отменено")
+              case Left(error) =>
+                printTaskError(error)
+            }
+          case None =>
+            controller.stop()
         }
       }
 

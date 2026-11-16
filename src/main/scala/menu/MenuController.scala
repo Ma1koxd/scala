@@ -1,6 +1,12 @@
 package menu
 
 class MenuController(view: MenuView) {
+  private var running = false
+
+  def stop(): Unit = {
+    running = false
+  }
+
   def getSelectedItem(menu: MenuContainer, choice: Int): Option[MenuNode] = {
     if (choice >= 1 && choice <= menu.items.length) {
       Some(menu.items(choice - 1))
@@ -31,7 +37,7 @@ class MenuController(view: MenuView) {
   def run(startMenu: MenuContainer): Unit = {
     var currentMenu = startMenu
     var previousMenus = List.empty[MenuContainer]
-    var running = true
+    running = true
 
     while (running) {
       view.showMenu(currentMenu, previousMenus.nonEmpty)
