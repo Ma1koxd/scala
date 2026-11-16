@@ -13,6 +13,8 @@ object StorageErrorPrinter {
         println("Некорректный формат файла конфигурации " + fileName + ": " + details)
       case StorageError.FILE_WRITE_FAILED(fileName, details) =>
         println("Ошибка записи файла " + fileName + ": " + details)
+      case StorageError.DIRECTORY_CREATION_FAILED(directoryName, details) =>
+        println("Ошибка создания папки " + directoryName + ": " + details)
     }
   }
 }

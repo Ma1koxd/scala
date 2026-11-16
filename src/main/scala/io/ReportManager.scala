@@ -1,8 +1,10 @@
 package io
 
-import model.{FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
+import model.{FreeTimeSlot, ScheduledBlock, StorageError, Task, TaskStatus}
 
-import java.io.{File, PrintWriter}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
+import scala.util.control.NonFatal
 
 object ReportManager {
   def buildReport(
@@ -132,28 +134,40 @@ object ReportManager {
     report.toString()
   }
 
-  def saveReport(reportDirectory: String, content: String): Boolean = {
+  // создаем папку для отчётов, если она ещё не существует
+  // возвращаем путь к папке либо ошибку её создания
+  def createReportDirectoryResult(reportDirectory: String): Either[StorageError, Path] = {
     try {
-      val directory = new File(reportDirectory)
+      Right(Files.createDirectories(Path.of(reportDirectory)))
+    } catch {
+      case NonFatal(exception) =>
+        Left(StorageError.DIRECTORY_CREATION_FAILED(reportDirectory, exception.toString))
+    }
+  }
 
-      if (!directory.exists()) {
-        directory.mkdirs()
-      }
-
-      val file = new File(directory, "report.txt")
-      val writer = new PrintWriter(file)
+  // записываем содержимое отчёта и возвращаем путь к файлу после его закрытия
+  // ошибки записи и закрытия возвращаем через FILE_WRITE_FAILED
+  def writeReportResult(file: Path, content: String): Either[StorageError, Path] = {
+    try {
+      val writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)
 
       try {
-        writer.print(content)
-        println("Отчёт успешно создан: " + file.getPath)
+        writer.write(content)
       } finally {
         writer.close()
       }
-      true
+
+      Right(file)
     } catch {
-      case exception: Exception =>
-        println("Ошибка при создании отчёта: " + exception.getMessage)
-        false
+      case NonFatal(exception) =>
+        Left(StorageError.FILE_WRITE_FAILED(file.toString, exception.toString))
     }
+  }
+
+  // создаем папку, затем записываем report.txt
+  // если создание папки завершилось ошибкой, запись не выполняется
+  def saveReportResult(reportDirectory: String, content: String): Either[StorageError, Path] = {
+    createReportDirectoryResult(reportDirectory)
+      .flatMap(directory => writeReportResult(directory.resolve("report.txt"), content))
   }
 }

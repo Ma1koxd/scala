@@ -5,7 +5,7 @@ import io.ConfigManager.{defaultConfig, loadConfigResult}
 import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
 import console.InputUtils.{readDate, readInt, readTime}
-import io.ReportManager.{buildReport, saveReport}
+import io.ReportManager.{buildReport, saveReportResult}
 import console.ScheduledBlockPrinter.printSchedule
 import console.StorageErrorPrinter.printStorageError
 import console.TaskEditor.editTask
@@ -32,7 +32,7 @@ object Main {
         config = loadedConfig
         println("Конфигурация успешно загружена.")
       case Right(None) =>
-        println("Файл конфигурации не найден. Сохраняются текущие настройки.")
+        println("Файл конфигурации не найден. Используются настройки по умолчанию.")
       case Left(error) =>
         printStorageError(error)
         println("Используются настройки по умолчанию.")
@@ -262,7 +262,7 @@ object Main {
           config = loadedConfig
           println("Конфигурация успешно загружена.")
         case Right(None) =>
-          println("Файл конфигурации не найден. Применяются настройки по умолчанию.")
+          println("Файл конфигурации не найден. Сохраняются текущие настройки.")
         case Left(error) =>
           printStorageError(error)
           println("Сохраняются текущие настройки.")
@@ -280,13 +280,13 @@ object Main {
         remainingFreeTimeSlots
       )
 
-      val reportSaved =
-        saveReport(config.reportDirectory, report)
-
-      if (reportSaved) {
-        log(config.logFile, "Создан текстовый отчёт")
-      } else {
-        log(config.logFile, "Ошибка при создании текстового отчёта")
+      saveReportResult(config.reportDirectory, report) match {
+        case Right(file) =>
+          println("Отчёт успешно создан: " + file)
+          log(config.logFile, "Создан текстовый отчёт")
+        case Left(error) =>
+          printStorageError(error)
+          log(config.logFile, "Ошибка при создании текстового отчёта")
       }
     }
 

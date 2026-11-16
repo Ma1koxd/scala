@@ -8,4 +8,5 @@ enum StorageError {
   case INVALID_STATE_FORMAT(fileName: String, details: String)
   case INVALID_CONFIG_FORMAT(fileName: String, details: String)
   case FILE_WRITE_FAILED(fileName: String, details: String)
+  case DIRECTORY_CREATION_FAILED(directoryName: String, details: String)
 }
