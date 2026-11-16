@@ -23,10 +23,6 @@ object InputUtils {
     readParsedResult(InputParser.parseInt)
   }
 
-  def readDoubleResult(): Either[InputError, Option[Double]] = {
-    readParsedResult(InputParser.parseDouble)
-  }
-
   // повторяем ввод при ошибке разбора
   // возвращаем Some(value), когда значение получено, или None, если ввод завершён
   def readParsedOption[A](parse: String => Either[InputError, A]): Option[A] = {

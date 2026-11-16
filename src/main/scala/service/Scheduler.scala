@@ -151,10 +151,7 @@ object Scheduler {
   }
 
   def isTaskOverdue(task: Task, currentDate: LocalDate): Boolean = {
-    task.remainingMinutes > 0 &&
-      task.status != TaskStatus.COMPLETED &&
-      task.status != TaskStatus.CANCELLED &&
-      task.deadline.isBefore(currentDate)
+    shouldScheduleTask(task) && task.deadline.isBefore(currentDate)
   }
 
   def scheduleAllTasks(
