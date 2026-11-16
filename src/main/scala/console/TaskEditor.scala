@@ -1,7 +1,7 @@
 package console
 
 import console.InputErrorPrinter.printInputError
-import console.InputUtils.{readBoolean, readDate, readDoubleOption, readInt, readIntOption, readLineOption, readPriorityOption}
+import console.InputUtils.{readBoolean, readDateOption, readDoubleOption, readInt, readIntOption, readLineOption, readPriorityOption}
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError}
@@ -144,12 +144,20 @@ object TaskEditor {
                 }
               case Right(TaskEditAction.CHANGE_START_DATE) =>
                 println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
-                var newStartDate = readDate()
+                var startDateOption = readDateOption()
 
-                while (newStartDate.isAfter(currentTask.deadline)) {
+                while (startDateOption.exists(date => date.isAfter(currentTask.deadline))) {
                   println("Ошибка: дата начала не может быть позже дедлайна.")
                   println("Введите новую дату начала (ГГГГ-ММ-ДД): ")
-                  newStartDate = readDate()
+                  startDateOption = readDateOption()
+                }
+
+                val newStartDate = startDateOption match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
                 }
 
                 changeStartDateResult(currentTask, newStartDate) match {
@@ -165,12 +173,20 @@ object TaskEditor {
                 }
               case Right(TaskEditAction.CHANGE_DEADLINE) =>
                 println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
-                var newDeadline = readDate()
+                var deadlineOption = readDateOption()
 
-                while (newDeadline.isBefore(currentTask.startDate)) {
+                while (deadlineOption.exists(date => date.isBefore(currentTask.startDate))) {
                   println("Ошибка: дедлайн не может быть раньше даты начала.")
                   println("Введите новый дедлайн (ГГГГ-ММ-ДД): ")
-                  newDeadline = readDate()
+                  deadlineOption = readDateOption()
+                }
+
+                val newDeadline = deadlineOption match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
                 }
 
                 changeDeadlineResult(currentTask, newDeadline) match {
