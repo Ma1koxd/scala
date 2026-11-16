@@ -3,7 +3,6 @@ package io
 import model.{AppState, StorageError}
 import upickle.default.{read, writeTo}
 
-import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, NoSuchFileException, Path}
 import scala.util.control.NonFatal // нужна, чтобы пропускать критические сбои
@@ -18,21 +17,23 @@ object StateManager {
     }
   }
 
-  def saveState(state: AppState, fileName: String): Boolean = {
+  // записываем состояние в файл сохранения
+  // возвращаем Right(()) после успешной записи и закрытия файла
+  // при ошибке возвращается Left с FILE_WRITE_FAILED
+  def saveStateResult(state: AppState, fileName: String): Either[StorageError, Unit] = {
     try {
-      val writer = new PrintWriter(new File(fileName))
+      val writer = Files.newBufferedWriter(Path.of(fileName), StandardCharsets.UTF_8)
 
       try {
         writeTo(state, writer, indent = 2)
-        println("Состояние сохранено успешно.")
       } finally {
         writer.close()
       }
-      true
+
+      Right(())
     } catch {
-      case exception: Exception =>
-        println("Ошибка при сохранении состояния: " + exception.getMessage)
-        false
+      case NonFatal(exception) =>
+        Left(StorageError.FILE_WRITE_FAILED(fileName, exception.toString))
     }
   }
 

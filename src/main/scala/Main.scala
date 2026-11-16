@@ -14,7 +14,7 @@ import console.TaskInput.readTask
 import service.Scheduler.scheduleAllTasks
 import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult}
 import console.TaskPrinter.{printTask, printTasks}
-import io.StateManager.{loadStateResult, saveState}
+import io.StateManager.{loadStateResult, saveStateResult}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
 import model.{AppAction, AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
@@ -277,13 +277,14 @@ object Main {
         freeTimeSlots,
         nextId
       )
-      val stateSaved =
-        saveState(state, config.stateFile)
 
-      if (stateSaved) {
-        log(config.logFile, "Состояние программы сохранено")
-      } else {
-        log(config.logFile, "Ошибка при сохранении состояния программы")
+      saveStateResult(state, config.stateFile) match {
+        case Right(()) =>
+          println("Состояние сохранено успешно.")
+          log(config.logFile, "Состояние программы сохранено")
+        case Left(error) =>
+          printStorageError(error)
+          log(config.logFile, "Ошибка при сохранении состояния программы")
       }
 
       log(config.logFile, "Программа завершена")
