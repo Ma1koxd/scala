@@ -101,7 +101,7 @@ object Main {
 
     def editTaskAction(): Unit = {
       val oldTasks = tasks
-      tasks = editTask(tasks)
+      tasks = editTask(tasks, () => controller.stop())
       val completedHoursChanged = oldTasks.exists(oldTask =>
         tasks.find(task => task.id == oldTask.id) match {
           case Some(updatedTask) =>

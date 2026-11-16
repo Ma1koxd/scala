@@ -1,7 +1,7 @@
 package console
 
 import console.InputErrorPrinter.printInputError
-import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readPriority}
+import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readIntOption, readPriority}
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError}
@@ -10,14 +10,20 @@ import service.TaskManager.{changeCompletedHoursResult, changeDeadlineResult, ch
 import scala.io.StdIn.readLine
 
 object TaskEditor {
-  def editTask(tasks: List[Task]): List[Task] = {
+  def editTask(tasks: List[Task], onEndOfInput: () => Unit): List[Task] = {
     var updatedTasks = tasks
 
     if (updatedTasks.isEmpty) {
       println("Список дел пуст.\n")
     } else {
       println("Введите ID дела для изменения: ")
-      val id = readInt()
+      val id = readIntOption() match {
+        case Some(value) =>
+          value
+        case None =>
+          onEndOfInput()
+          return updatedTasks
+      }
 
       val foundTask = updatedTasks.find(task => task.id == id)
       foundTask match {
@@ -38,7 +44,13 @@ object TaskEditor {
               "\t7) Возможность разделения на блоки\n" +
               "\t8) Минимальная продолжительность блока\n" +
               "\t0) Завершить изменение")
-            val editActionResult = TaskEditActionParser.parse(readInt())
+            val editActionResult = readIntOption() match {
+              case Some(choice) =>
+                TaskEditActionParser.parse(choice)
+              case None =>
+                onEndOfInput()
+                return updatedTasks
+            }
             editActionResult match {
               case Right(TaskEditAction.CHANGE_NAME) =>
                 println("Введите новое название: ")
