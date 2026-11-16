@@ -166,4 +166,12 @@ object InputUtils {
   def readDoubleOption(): Option[Double] = {
     readParsedOption(InputParser.parseDouble)
   }
+
+  def readDateOption(): Option[LocalDate] = {
+    readParsedOption(InputParser.parseDate)
+  }
+
+  def readTimeOption(): Option[LocalTime] = {
+    readParsedOption(InputParser.parseTime)
+  }
 }

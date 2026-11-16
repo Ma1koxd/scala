@@ -11,6 +11,10 @@ object InputErrorPrinter {
         println("Ошибка: это не целое число")
       case InputError.INVALID_DOUBLE(_) =>
         println("Ошибка: введите корректное число. ")
+      case InputError.INVALID_DATE(_) =>
+        println("Ошибка: введите дату в формате ГГГГ-ММ-ДД")
+      case InputError.INVALID_TIME(_) =>
+        println("Ошибка: введите время в формате ЧЧ:ММ")
     }
   }
 }
