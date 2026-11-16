@@ -1,6 +1,6 @@
 import console.FreeTimeErrorPrinter.printFreeTimeError
 import console.FreeTimeInput.readFreeTimeSlot
-import io.AppLogger.log
+import io.AppLogger.logResult
 import io.ConfigManager.{defaultConfig, loadConfigResult}
 import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
@@ -19,6 +19,16 @@ import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
 import model.{AppAction, AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
 object Main {
+  // записываем сообщение в лог, при ошибке выводим её пользователю
+  def log(fileName: String, message: String): Unit = {
+    logResult(fileName, message) match {
+      case Right(()) =>
+        ()
+      case Left(error) =>
+        printStorageError(error)
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     var tasks = List.empty[Task]
     var freeTimeSlots = List.empty[FreeTimeSlot]

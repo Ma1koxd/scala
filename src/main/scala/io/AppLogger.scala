@@ -1,23 +1,35 @@
 package io
 
-import java.io.{FileWriter, PrintWriter}
+import model.StorageError
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, StandardOpenOption}
 import java.time.LocalDateTime
+import scala.util.control.NonFatal
 
 object AppLogger {
-  def log(fileName: String, message: String): Unit = {
+  // дописываем сообщение в лог вместе с текущими датой и временем
+  // возвращаем Right(()) после записи и закрытия файла, при ошибке — Left
+  def logResult(fileName: String, message: String): Either[StorageError, Unit] = {
     try {
-      val writer = new PrintWriter(
-        new FileWriter(fileName, true)
+      val writer = Files.newBufferedWriter(
+        Path.of(fileName),
+        StandardCharsets.UTF_8,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.APPEND
       )
 
       try {
-        writer.println("[" + LocalDateTime.now() + "] " + message)
+        writer.write("[" + LocalDateTime.now() + "] " + message)
+        writer.newLine()
       } finally {
         writer.close()
       }
+
+      Right(())
     } catch {
-      case exception: Exception =>
-        println("Ошибка при записи лога: " + exception.getMessage)
+      case NonFatal(exception) =>
+        Left(StorageError.FILE_WRITE_FAILED(fileName, exception.toString))
     }
   }
 }
