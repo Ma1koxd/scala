@@ -15,7 +15,7 @@ import service.TaskManager.{addTaskResult, cancelTaskResult, deleteTaskResult}
 import console.TaskPrinter.{printTask, printTasks}
 import io.StateManager.{loadState, saveState}
 import menu.{ConsoleMenuView, MenuContainer, MenuController, MenuItem}
-import model.{AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
+import model.{AppAction, AppState, FreeTimeSlot, ScheduledBlock, Task, TaskStatus}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -283,28 +283,60 @@ object Main {
       log(config.logFile, "Программа завершена")
     }
 
+    // пункты меню передают действия, представленные через ADT, в handleAppAction,
+    // который вызывает нужный нам сценарий
+    def handleAppAction(action: AppAction): Unit = {
+      action match {
+        case AppAction.ADD_TASK =>
+          addTaskAction()
+        case AppAction.SHOW_TASKS =>
+          showTasksAction()
+        case AppAction.EDIT_TASK =>
+          editTaskAction()
+        case AppAction.DELETE_TASK =>
+          deleteTaskAction()
+        case AppAction.CANCEL_TASK =>
+          cancelTaskAction()
+        case AppAction.ADD_FREE_TIME =>
+          addFreeTimeAction()
+        case AppAction.SHOW_FREE_TIME =>
+          showFreeTimeAction()
+        case AppAction.DELETE_FREE_TIME =>
+          deleteFreeTimeAction()
+        case AppAction.BUILD_SCHEDULE =>
+          buildScheduleAction()
+        case AppAction.SHOW_SCHEDULE =>
+          showScheduleAction()
+        case AppAction.RELOAD_CONFIG =>
+          reloadConfigAction()
+        case AppAction.CREATE_REPORT =>
+          createReportAction()
+      }
+    }
+
+    // переписываем менюшки, чтобы действия были явно описанными через ADT
     val tasksMenu = MenuContainer(
       "Работа с делами", List(
-        MenuItem("Добавить дело", () => addTaskAction()),
-        MenuItem("Показать дела", () => showTasksAction()),
-        MenuItem("Изменить дело", () => editTaskAction()),
-        MenuItem("Удалить дело", () => deleteTaskAction()),
-        MenuItem("Отменить дело", () => cancelTaskAction())
+        MenuItem("Добавить дело", () => handleAppAction(AppAction.ADD_TASK)),
+        MenuItem("Показать дела", () => handleAppAction(AppAction.SHOW_TASKS)),
+        MenuItem("Изменить дело", () => handleAppAction(AppAction.EDIT_TASK)),
+        MenuItem("Удалить дело", () => handleAppAction(AppAction.DELETE_TASK)),
+        MenuItem("Отменить дело", () => handleAppAction(AppAction.CANCEL_TASK))
       )
     )
 
     val freeTimeMenu = MenuContainer(
       "Свободное время", List(
-        MenuItem("Добавить свободное время", () => addFreeTimeAction()),
-        MenuItem("Показать свободное время", () => showFreeTimeAction()),
-        MenuItem("Удалить свободное время", () => deleteFreeTimeAction())
+        MenuItem("Добавить свободное время", () => handleAppAction(AppAction.ADD_FREE_TIME)),
+        MenuItem("Показать свободное время", () => handleAppAction(AppAction.SHOW_FREE_TIME)),
+        MenuItem("Удалить свободное время", () => handleAppAction(AppAction.DELETE_FREE_TIME))
       )
     )
 
     val scheduleMenu = MenuContainer(
       "Расписание", List(
-        MenuItem("Составить расписание", () => buildScheduleAction()),
-        MenuItem("Показать расписание", () => showScheduleAction())
+        MenuItem("Составить расписание", () => handleAppAction(AppAction.BUILD_SCHEDULE)),
+        MenuItem("Показать расписание", () => handleAppAction(AppAction.SHOW_SCHEDULE))
       )
     )
 
@@ -313,8 +345,8 @@ object Main {
         tasksMenu,
         freeTimeMenu,
         scheduleMenu,
-        MenuItem("Перезагрузить конфигурацию", () => reloadConfigAction()),
-        MenuItem("Создать отчёт", () => createReportAction())
+        MenuItem("Перезагрузить конфигурацию", () => handleAppAction(AppAction.RELOAD_CONFIG)),
+        MenuItem("Создать отчёт", () => handleAppAction(AppAction.CREATE_REPORT))
       )
     )
 
