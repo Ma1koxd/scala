@@ -4,7 +4,7 @@ import io.AppLogger.logResult
 import io.ConfigManager.{defaultConfig, loadConfigResult}
 import service.FreeTimeManager.{addFreeTimeSlotResult, deleteFreeTimeSlotResult}
 import console.FreeTimePrinter.printFreeTimeSlots
-import console.InputUtils.{readDate, readIntOption, readTime}
+import console.InputUtils.{readDateOption, readIntOption, readTimeOption}
 import io.ReportManager.{buildReport, saveReportResult}
 import console.ScheduledBlockPrinter.printSchedule
 import console.StorageErrorPrinter.printStorageError
@@ -196,18 +196,25 @@ object Main {
         println("Свободное время не задано.")
       } else {
         println("Введите дату свободного времени для удаления (ГГГГ-ММ-ДД): ")
-        val date = readDate()
 
-        println("Введите время начала удаляемого промежутка (ЧЧ:ММ): ")
-        val startTime = readTime()
+        // slotKey - это Option с парой даты и времени, None означает завершение ввода
+        val slotKey = readDateOption().flatMap(date => {
+          println("Введите время начала удаляемого промежутка (ЧЧ:ММ): ")
+          readTimeOption().map(startTime => (date, startTime))
+        })
 
-        deleteFreeTimeSlotResult(freeTimeSlots, date, startTime) match {
-          case Right(updatedFreeTimeSlots) =>
-            freeTimeSlots = updatedFreeTimeSlots
-            println("Свободное время успешно удалено.")
-            log(config.logFile, "Удалён интервал свободного времени")
-          case Left(error) =>
-            printFreeTimeError(error)
+        slotKey match {
+          case Some((date, startTime)) =>
+            deleteFreeTimeSlotResult(freeTimeSlots, date, startTime) match {
+              case Right(updatedFreeTimeSlots) =>
+                freeTimeSlots = updatedFreeTimeSlots
+                println("Свободное время успешно удалено.")
+                log(config.logFile, "Удалён интервал свободного времени")
+              case Left(error) =>
+                printFreeTimeError(error)
+            }
+          case None =>
+            controller.stop()
         }
       }
 
@@ -219,53 +226,57 @@ object Main {
 
     def buildScheduleAction(): Unit = {
       println("Введите текущую дату планирования (ГГГГ-ММ-ДД):")
-      val currentDate = readDate()
-      log(config.logFile, "Начато построение расписания на дату: " + currentDate)
+      readDateOption() match {
+        case Some(currentDate) =>
+          log(config.logFile, "Начато построение расписания на дату: " + currentDate)
 
-      val result = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
-      schedule = result.blocks
-      remainingFreeTimeSlots = result.remainingFreeTimeSlots
-      log(config.logFile, "Построение расписания завершено. Создано блоков: " + schedule.length)
-      printSchedule(schedule)
+          val result = scheduleAllTasks(tasks, freeTimeSlots, currentDate)
+          schedule = result.blocks
+          remainingFreeTimeSlots = result.remainingFreeTimeSlots
+          log(config.logFile, "Построение расписания завершено. Создано блоков: " + schedule.length)
+          printSchedule(schedule)
 
-      if (result.unplacedTasks.nonEmpty) {
-        val totalUnplacedMinutes = result.unplacedTasks.map(task => task.remainingMinutes).sum
-        val totalUnplacedHours = totalUnplacedMinutes / 60.0
-        log(config.logFile, "Не удалось разместить дел: " + result.unplacedTasks.length
-          + ", не размещено часов: " + totalUnplacedHours)
+          if (result.unplacedTasks.nonEmpty) {
+            val totalUnplacedMinutes = result.unplacedTasks.map(task => task.remainingMinutes).sum
+            val totalUnplacedHours = totalUnplacedMinutes / 60.0
+            log(config.logFile, "Не удалось разместить дел: " + result.unplacedTasks.length
+              + ", не размещено часов: " + totalUnplacedHours)
 
-        println("\nПлан построен не полностью.")
-        println("Не удалось разместить задач: " + result.unplacedTasks.length)
-        println("Не размещено работы: " + totalUnplacedHours + " часов")
-        println("\nНе удалось разместить следующие задачи: \n")
+            println("\nПлан построен не полностью.")
+            println("Не удалось разместить задач: " + result.unplacedTasks.length)
+            println("Не размещено работы: " + totalUnplacedHours + " часов")
+            println("\nНе удалось разместить следующие задачи: \n")
 
-        for (task <- result.unplacedTasks) {
-          printTask(task)
-        }
+            for (task <- result.unplacedTasks) {
+              printTask(task)
+            }
+          }
+
+          val overdueTasks = result.updatedTasks.filter(task =>
+            task.status == TaskStatus.OVERDUE
+          )
+
+          if (overdueTasks.nonEmpty) {
+            log(config.logFile, "Обнаружено просроченных дел: " + overdueTasks.length)
+            println("\nПросроченные задачи:\n")
+
+            for (task <- overdueTasks) {
+              printTask(task)
+            }
+          }
+
+          println("Оставшееся свободное время после составления расписания:")
+
+          if (remainingFreeTimeSlots.isEmpty) {
+            println("Свободного времени не осталось.\n")
+          } else {
+            printFreeTimeSlots(remainingFreeTimeSlots)
+          }
+
+          tasks = result.updatedTasks
+        case None =>
+          controller.stop()
       }
-
-      val overdueTasks = result.updatedTasks.filter(task =>
-        task.status == TaskStatus.OVERDUE
-      )
-
-      if (overdueTasks.nonEmpty) {
-        log(config.logFile, "Обнаружено просроченных дел: " + overdueTasks.length)
-        println("\nПросроченные задачи:\n")
-
-        for (task <- overdueTasks) {
-          printTask(task)
-        }
-      }
-
-      println("Оставшееся свободное время после составления расписания:")
-
-      if (remainingFreeTimeSlots.isEmpty) {
-        println("Свободного времени не осталось.\n")
-      } else {
-        printFreeTimeSlots(remainingFreeTimeSlots)
-      }
-
-      tasks = result.updatedTasks
     }
 
     def showScheduleAction(): Unit = {
