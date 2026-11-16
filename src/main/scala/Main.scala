@@ -172,15 +172,18 @@ object Main {
     // раздел с действиями для свободного времени
 
     def addFreeTimeAction(): Unit = {
-      val slot = readFreeTimeSlot()
-
-      addFreeTimeSlotResult(freeTimeSlots, slot) match {
-        case Right(updatedFreeTimeSlots) =>
-          freeTimeSlots = updatedFreeTimeSlots
-          println("Свободное время добавлено успешно.")
-          log(config.logFile, "Добавлен интервал свободного времени")
-        case Left(error) =>
-          printFreeTimeError(error)
+      readFreeTimeSlot() match {
+        case Some(slot) =>
+          addFreeTimeSlotResult(freeTimeSlots, slot) match {
+            case Right(updatedFreeTimeSlots) =>
+              freeTimeSlots = updatedFreeTimeSlots
+              println("Свободное время добавлено успешно.")
+              log(config.logFile, "Добавлен интервал свободного времени")
+            case Left(error) =>
+              printFreeTimeError(error)
+          }
+        case None =>
+          controller.stop()
       }
 
       schedule = List.empty[ScheduledBlock]

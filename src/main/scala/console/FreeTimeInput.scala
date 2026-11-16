@@ -1,23 +1,22 @@
 package console
 
-import console.InputUtils.{readDate, readTime}
+import console.InputUtils.{readDateOption, readTimeOption}
 import model.FreeTimeSlot
 
 object FreeTimeInput {
-  def readFreeTimeSlot(): FreeTimeSlot = {
+  def readFreeTimeSlot(): Option[FreeTimeSlot] = {
     println("Введите дату свободного времени (ГГГГ-ММ-ДД):")
-    val date = readDate()
 
-    println("Введите время начала (ЧЧ:ММ):")
-    val startTime = readTime()
+    readDateOption().flatMap(date => {
+      println("Введите время начала (ЧЧ:ММ):")
 
-    println("Введите время окончания (ЧЧ:ММ):")
-    val endTime = readTime()
+      readTimeOption().flatMap(startTime => {
+        println("Введите время окончания (ЧЧ:ММ):")
 
-    FreeTimeSlot(
-      date,
-      startTime,
-      endTime
-    )
+        readTimeOption().map(endTime =>
+          FreeTimeSlot(date, startTime, endTime)
+        )
+      })
+    })
   }
 }
