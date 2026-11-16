@@ -56,19 +56,18 @@ object Scheduler {
                           usedSlot: FreeTimeSlot,
                           block:ScheduledBlock
                          ): List[FreeTimeSlot] = {
-    var updatedSlots = List.empty[FreeTimeSlot]
-
-    for (slot <- freeTimeSlots) {
+    // каждый начальный промежуток времени превращаем в список из нуля или одного промежутка
+    // flatMap объединяет полученные списки в один список свободного времени
+    val updatedSlots = freeTimeSlots.flatMap(slot =>
       if (slot == usedSlot) {
-        getRemainingSlot(slot, block) match {
-          case Some(remainingSlot) =>
-            updatedSlots = updatedSlots :+ remainingSlot
-          case None =>
-        }
+        // Some(remainingSlot).toList даёт List(remainingSlot)
+        // None.toList даёт пустой список, поэтому использованный промежуток времени исчезает
+        getRemainingSlot(slot, block).toList
       } else {
-        updatedSlots = updatedSlots :+ slot
+        List(slot)
       }
-    }
+    )
+
     sortFreeTimeSlots(updatedSlots)
   }
 
