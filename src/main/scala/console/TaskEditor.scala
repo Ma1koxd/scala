@@ -1,7 +1,7 @@
 package console
 
 import console.InputErrorPrinter.printInputError
-import console.InputUtils.{readBoolean, readDate, readDouble, readInt, readIntOption, readLineOption, readPriorityOption}
+import console.InputUtils.{readBoolean, readDate, readDoubleOption, readInt, readIntOption, readLineOption, readPriorityOption}
 import console.TaskErrorPrinter.printTaskError
 import console.TaskPrinter.printTask
 import model.{Task, TaskEditAction, TaskError}
@@ -69,16 +69,27 @@ object TaskEditor {
                 printTask(updatedTask)
               case Right(TaskEditAction.CHANGE_TOTAL_HOURS) =>
                 println("Введите новую трудоёмкость в часах: ")
-                var newTotalHours = readDouble()
+                var totalHoursOption = readDoubleOption()
 
-                while (newTotalHours <= 0 || newTotalHours < currentTask.completedHours) {
-                  if (newTotalHours <= 0) {
+                while (totalHoursOption.exists(hours =>
+                  hours <= 0 || hours < currentTask.completedHours
+                )) {
+                  if (totalHoursOption.exists(hours => hours <= 0)) {
                     println("Ошибка: трудоёмкость должна быть больше нуля.")
                   } else {
                     println("Ошибка: трудоёмкость не может быть меньше уже выполненного количества часов.")
                   }
+
                   println("Введите новую трудоёмкость в часах: ")
-                  newTotalHours = readDouble()
+                  totalHoursOption = readDoubleOption()
+                }
+
+                val newTotalHours = totalHoursOption match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
                 }
 
                 changeTotalHoursResult(currentTask, newTotalHours) match {
@@ -97,17 +108,27 @@ object TaskEditor {
                 }
               case Right(TaskEditAction.CHANGE_COMPLETED_HOURS) =>
                 println("Введите количество выполненных часов: ")
-                var newCompletedHours = readDouble()
+                var completedHoursOption = readDoubleOption()
 
-                while (newCompletedHours < 0 || newCompletedHours > currentTask.totalHours) {
-                  if (newCompletedHours < 0) {
+                while (completedHoursOption.exists(hours =>
+                  hours < 0 || hours > currentTask.totalHours
+                )) {
+                  if (completedHoursOption.exists(hours => hours < 0)) {
                     println("Ошибка: количество выполненных часов не может быть отрицательным.")
                   } else {
                     println("Ошибка: количество выполненных часов не может превышать общую трудоёмкость.")
                   }
 
                   println("Введите количество выполненных часов: ")
-                  newCompletedHours = readDouble()
+                  completedHoursOption = readDoubleOption()
+                }
+
+                val newCompletedHours = completedHoursOption match {
+                  case Some(value) =>
+                    value
+                  case None =>
+                    onEndOfInput()
+                    return updatedTasks
                 }
 
                 changeCompletedHoursResult(currentTask, newCompletedHours) match {
